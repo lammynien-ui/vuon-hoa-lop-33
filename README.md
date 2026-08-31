@@ -296,3 +296,17 @@ Nếu triển khai công khai trên Internet và cần quản lý thật, nên d
 - Giữ nguyên V18: không còn chế độ thử/PIN 3300 trên website công khai.
 - Giữ nguyên chẩn đoán đăng nhập Firebase.
 - Giữ nguyên Firestore, mã lớp, chatbot, hiệu ứng thời tiết, Nàng tiên Bướm, 40 bông hoa.
+
+
+## V20 – Âm thanh khu vườn
+- Sửa hoàn toàn âm thanh cộng/trừ điểm.
+- +1: tiếng giọt nước + chuông tích cực.
+- +2: hai giọt nước + chuông vui hơn.
+- -1: âm chăm sóc nhẹ, không mang cảm giác phạt.
+- Thêm nút `🔊 Hiệu ứng: Bật/Tắt`, lưu lựa chọn trên thiết bị.
+- Ưu tiên nhạc riêng của lớp tại `music/music.mp3`.
+- Nếu file MP3 thiếu hoặc lỗi, tự động phát `music/default-garden.wav`.
+- `default-garden.wav` là bản nhạc nền nhẹ do hệ thống tạo riêng cho khu vườn.
+- Nút chọn nhạc thử chỉ hiện cho giáo viên.
+- Sửa hàm `animateWater()` và `ping()` bị thiếu ở các phiên bản trước.
+- Sau đăng nhập thành công, trạng thái lỗi cũ được xóa.

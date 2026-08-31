@@ -58,12 +58,20 @@ let isTeacher = false;
 let selectedStudentId = null;
 let selectedReason = reasons[0][1];
 let soundOn = true;
+let soundEffectsOn = localStorage.getItem("vuonhoa33_fx") !== "off";
 let musicPlaying = false;
 let musicCtx = null;
+let fxCtx = null;
+let usingFallbackMusic = false;
+
 const customMusic = document.getElementById("customMusic");
 const SHARED_MUSIC_PATH = "music/music.mp3";
-if(customMusic && !customMusic.getAttribute("src")){
-  customMusic.src=SHARED_MUSIC_PATH;
+const FALLBACK_MUSIC_PATH = "music/default-garden.wav";
+
+if(customMusic){
+  customMusic.volume = 0.34;
+  customMusic.src = SHARED_MUSIC_PATH;
+  customMusic.load();
 }
 
 
@@ -612,7 +620,8 @@ async function cloudTeacherLogin(){
     closeModal("loginModal");
     isTeacher=true;
     refreshAdminVisibility();
-    setSyncStatus("cloud","☁️ Đã đăng nhập • Giáo viên");
+    setSyncStatus("cloud","☁️ Giáo viên đã đăng nhập");
+    setTimeout(()=>setSyncStatus("cloud","☁️ Firestore • Giáo viên"),350);
     toast("Đăng nhập Firebase thành công.");
 
     // BƯỚC 2: Firestore chạy riêng. Lỗi ở đây KHÔNG được báo nhầm là lỗi đăng nhập.
@@ -665,14 +674,18 @@ document.getElementById("studentNameInput").addEventListener("change",e=>{
 function addScore(delta){
   if(!isTeacher) return;
   const st=getSelected();
+  if(!st) return;
+
   const before=st.score;
   st.score=Math.max(0,st.score+delta);
+
   if(delta>0){
     st.wilt=Math.max(0,st.wilt-1);
     st.counts[selectedReason]=(st.counts[selectedReason]||0)+delta;
   }else{
     st.wilt+=1;
   }
+
   st.history.push({
     time:new Date().toISOString(),
     delta,
@@ -680,11 +693,16 @@ function addScore(delta){
     before,
     after:st.score
   });
+
   saveState();
-  animateWater(st.id,delta);
   renderGarden();
   openStudent(st.id);
-  if(delta>0) ping();
+
+  // Chạy sau render để hiệu ứng không bị xóa ngay.
+  requestAnimationFrame(()=>{
+    animateWater(st.id,delta);
+    playScoreSound(delta);
+  });
 }
 
 document.getElementById("waterBtn").addEventListener("click",()=>addScore(1));
@@ -819,35 +837,203 @@ document.getElementById("confirmResetBtn").addEventListener("click",()=>{
   state={students:defaultStudents(), celebrations:0, lastMilestoneTotal:0};saveState();renderGarden();closeModal("confirmModal");toast("Đã tạo lại khu vườn mới.");
 });
 
+/* =========================================================
+   V20 AUDIO ENGINE
+   - Nhạc nền: ưu tiên music/music.mp3, tự fallback sang default-garden.wav.
+   - Hiệu ứng điểm: Web Audio độc lập với nhạc nền.
+   ========================================================= */
+
+function updateEffectsButton(){
+  const btn=document.getElementById("effectsBtn");
+  if(btn) btn.textContent=soundEffectsOn ? "🔊 Hiệu ứng: Bật" : "🔇 Hiệu ứng: Tắt";
+}
+
+function getFxContext(){
+  const Ctx=window.AudioContext || window.webkitAudioContext;
+  if(!Ctx) return null;
+  if(!fxCtx) fxCtx=new Ctx();
+  if(fxCtx.state==="suspended") fxCtx.resume().catch(()=>{});
+  return fxCtx;
+}
+
+function playTone(freq,duration=0.16,delay=0,type="sine",volume=0.04,endFreq=null){
+  if(!soundEffectsOn) return;
+  const ctx=getFxContext();
+  if(!ctx) return;
+
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
+  const start=ctx.currentTime+delay;
+
+  osc.type=type;
+  osc.frequency.setValueAtTime(freq,start);
+  if(endFreq){
+    osc.frequency.exponentialRampToValueAtTime(Math.max(20,endFreq),start+duration);
+  }
+
+  gain.gain.setValueAtTime(0.0001,start);
+  gain.gain.exponentialRampToValueAtTime(volume,start+0.018);
+  gain.gain.exponentialRampToValueAtTime(0.0001,start+duration);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(start);
+  osc.stop(start+duration+0.03);
+}
+
+function playWaterDrop(delay=0){
+  // Hai thành phần tạo cảm giác "tõm" nhẹ.
+  playTone(980,0.12,delay,"sine",0.035,520);
+  playTone(1450,0.08,delay+0.018,"triangle",0.018,760);
+}
+
+function playPositiveChime(delay=0.08){
+  playTone(784,0.20,delay,"sine",0.025);
+  playTone(988,0.22,delay+0.08,"sine",0.026);
+  playTone(1175,0.28,delay+0.16,"triangle",0.025);
+}
+
+function playCareSound(){
+  // Âm trầm dịu, không mang cảm giác "phạt".
+  playTone(520,0.20,0,"sine",0.025,390);
+  playTone(390,0.25,0.10,"triangle",0.020,310);
+}
+
+function playScoreSound(delta){
+  if(!soundEffectsOn) return;
+  try{
+    if(delta>=2){
+      playWaterDrop(0);
+      playWaterDrop(0.16);
+      playPositiveChime(0.24);
+    }else if(delta>0){
+      playWaterDrop(0);
+      playPositiveChime(0.10);
+    }else{
+      playCareSound();
+    }
+  }catch(e){
+    console.warn("Score sound:",e);
+  }
+}
+
+// Tương thích với các phiên bản cũ từng gọi ping().
+function ping(){
+  playPositiveChime(0);
+}
+
+function animateWater(studentId,delta){
+  const plot=document.querySelector(`.student-plot[data-id="${studentId}"]`);
+  if(!plot) return;
+
+  const layer=document.createElement("div");
+  layer.className=`score-click-fx ${delta>0?"positive":"care"}`;
+
+  if(delta>0){
+    const count=delta>=2?7:4;
+    for(let i=0;i<count;i++){
+      const drop=document.createElement("span");
+      drop.className="score-water-drop";
+      drop.textContent="💧";
+      drop.style.setProperty("--fx-x",`${-28+Math.random()*56}px`);
+      drop.style.setProperty("--fx-delay",`${Math.random()*0.16}s`);
+      layer.appendChild(drop);
+    }
+    const mark=document.createElement("span");
+    mark.className="score-fx-mark";
+    mark.textContent=delta>=2?"✨ +2":"✨ +1";
+    layer.appendChild(mark);
+  }else{
+    const leaf=document.createElement("span");
+    leaf.className="score-care-leaf";
+    leaf.textContent="🍂";
+    layer.appendChild(leaf);
+    const mark=document.createElement("span");
+    mark.className="score-fx-mark";
+    mark.textContent="🌱 Cùng cố gắng nhé";
+    layer.appendChild(mark);
+  }
+
+  plot.appendChild(layer);
+  setTimeout(()=>layer.remove(),1250);
+}
+
+function switchToFallbackMusic(){
+  if(!customMusic || usingFallbackMusic || customMusic.dataset.objectUrl) return;
+  usingFallbackMusic=true;
+  customMusic.src=FALLBACK_MUSIC_PATH;
+  customMusic.load();
+  const btn=document.getElementById("soundBtn");
+  if(btn) btn.textContent="🎵 Phát nhạc";
+}
+
 customMusic?.addEventListener("error",()=>{
-  document.getElementById("soundBtn").textContent="🎵 Chưa có nhạc chung";
+  if(!usingFallbackMusic && !customMusic.dataset.objectUrl){
+    switchToFallbackMusic();
+  }else{
+    const btn=document.getElementById("soundBtn");
+    if(btn) btn.textContent="🎵 Nhạc chưa sẵn sàng";
+  }
+});
+
+customMusic?.addEventListener("canplay",()=>{
+  const btn=document.getElementById("soundBtn");
+  if(btn && customMusic.paused){
+    btn.textContent="🎵 Phát nhạc";
+  }
+});
+
+document.getElementById("effectsBtn")?.addEventListener("click",()=>{
+  soundEffectsOn=!soundEffectsOn;
+  localStorage.setItem("vuonhoa33_fx",soundEffectsOn?"on":"off");
+  updateEffectsButton();
+  if(soundEffectsOn){
+    playWaterDrop(0);
+    playPositiveChime(0.08);
+    toast("Đã bật âm thanh hiệu ứng.");
+  }else{
+    toast("Đã tắt âm thanh hiệu ứng.");
+  }
 });
 
 document.getElementById("soundBtn").addEventListener("click", async ()=>{
-  if(!customMusic.src){
-    toast("Cô hãy bấm “Tải nhạc” để chọn bài hát trước.");
-    return;
-  }
+  if(!customMusic) return;
 
   try{
+    // Thao tác click của người dùng cho phép trình duyệt phát audio.
     if(customMusic.paused){
       await customMusic.play();
-      musicPlaying = true;
-      document.getElementById("soundBtn").textContent="⏸️ Tạm dừng";
-      toast("Đang phát nhạc nền.");
+      musicPlaying=true;
+      document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
+      toast(usingFallbackMusic ? "Đang phát nhạc khu vườn dự phòng." : "Đang phát nhạc nền của lớp.");
     }else{
       customMusic.pause();
-      musicPlaying = false;
-      document.getElementById("soundBtn").textContent="▶️ Phát nhạc";
+      musicPlaying=false;
+      document.getElementById("soundBtn").textContent="🎵 Phát nhạc";
     }
   }catch(e){
-    console.error(e);
-    toast("Trình duyệt chưa cho phép phát bài nhạc này.");
+    console.error("Background music:",e);
+
+    // Nếu file MP3 của lớp lỗi/chưa có thì chuyển ngay sang bản dự phòng.
+    if(!usingFallbackMusic && !customMusic.dataset.objectUrl){
+      switchToFallbackMusic();
+      try{
+        await customMusic.play();
+        musicPlaying=true;
+        document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
+        toast("File nhạc của lớp chưa đọc được nên đang phát nhạc khu vườn dự phòng.");
+        return;
+      }catch(e2){
+        console.error("Fallback music:",e2);
+      }
+    }
+
+    toast("Trình duyệt chưa cho phép phát nhạc. Hãy bấm lại nút Phát nhạc.");
   }
 });
 
-// Chọn nhạc ở đây chỉ để NGHE THỬ trên máy giáo viên.
-// Nhạc dùng chung cho PH/HS là file `music/music.mp3` được upload cùng website.
+// Chọn nhạc chỉ để nghe thử trên thiết bị giáo viên.
+// Muốn PH/HS cùng nghe, upload bài hát với tên music/music.mp3 lên GitHub.
 document.getElementById("musicInput").addEventListener("change", async e=>{
   const file=e.target.files?.[0];
   if(!file) return;
@@ -859,7 +1045,10 @@ document.getElementById("musicInput").addEventListener("change", async e=>{
 
   try{
     setMusicFile(file);
-    toast("Đang nghe thử trên máy này. Muốn PH/HS nghe bài này, hãy đổi file music/music.mp3 trên GitHub.");
+    await customMusic.play();
+    musicPlaying=true;
+    document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
+    toast("Đang nghe thử bài nhạc trên thiết bị này.");
   }catch(err){
     console.error(err);
     toast("Không thể mở bài nhạc này.");
@@ -867,16 +1056,20 @@ document.getElementById("musicInput").addEventListener("change", async e=>{
     e.target.value="";
   }
 });
+
 function setMusicFile(file){
   if(customMusic.dataset.objectUrl){
     URL.revokeObjectURL(customMusic.dataset.objectUrl);
   }
-  const url = URL.createObjectURL(file);
-  customMusic.src = url;
-  customMusic.dataset.objectUrl = url;
+  const url=URL.createObjectURL(file);
+  customMusic.src=url;
+  customMusic.dataset.objectUrl=url;
+  usingFallbackMusic=false;
   customMusic.load();
-  document.getElementById("soundBtn").textContent="▶️ Phát nhạc";
+  document.getElementById("soundBtn").textContent="🎵 Phát nhạc";
 }
+
+updateEffectsButton();
 
 function openMusicDB(){
   return new Promise((resolve,reject)=>{
@@ -1718,24 +1911,12 @@ function initDailyFairyMessage(){
 }
 
 function fairyChime(){
-  if(!soundOn) return;
+  if(!soundEffectsOn) return;
   try{
-    const ctx = musicCtx || new (window.AudioContext||window.webkitAudioContext)();
-    const notes = [783.99, 987.77, 1174.66, 1567.98];
-    notes.forEach((freq,i)=>{
-      const osc=ctx.createOscillator();
-      const gain=ctx.createGain();
-      osc.type="sine";
-      osc.frequency.value=freq;
-      const start=ctx.currentTime + i*.13;
-      gain.gain.setValueAtTime(.001,start);
-      gain.gain.exponentialRampToValueAtTime(.045,start+.035);
-      gain.gain.exponentialRampToValueAtTime(.001,start+.42);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(start);
-      osc.stop(start+.44);
-    });
+    playTone(784,0.32,0,"sine",0.025);
+    playTone(988,0.34,0.13,"sine",0.026);
+    playTone(1175,0.36,0.26,"triangle",0.025);
+    playTone(1568,0.42,0.39,"sine",0.020);
   }catch(e){}
 }
 
