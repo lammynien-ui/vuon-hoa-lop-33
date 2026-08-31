@@ -65,12 +65,15 @@ let fxCtx = null;
 let usingFallbackMusic = false;
 
 const customMusic = document.getElementById("customMusic");
-const SHARED_MUSIC_PATH = "Tr%C3%BAc%20An.mp3";
+const PRIMARY_MUSIC_URL = "https://raw.githubusercontent.com/lammynien-ui/vuon-hoa-lop-33/main/Tr%C3%BAc%20An.mp3";
+const LOCAL_MUSIC_URL = "Tr%C3%BAc%20An.mp3";
 const FALLBACK_MUSIC_PATH = "music/default-garden.wav";
+const MUSIC_SOURCES = [PRIMARY_MUSIC_URL, LOCAL_MUSIC_URL, FALLBACK_MUSIC_PATH];
+let musicSourceIndex = 0;
 
 if(customMusic){
-  customMusic.volume = 0.34;
-  if(!customMusic.getAttribute("src")) customMusic.src = SHARED_MUSIC_PATH;
+  customMusic.volume = 0.55;
+  customMusic.src = MUSIC_SOURCES[0];
   customMusic.load();
 }
 
@@ -958,21 +961,82 @@ function animateWater(studentId,delta){
   setTimeout(()=>layer.remove(),1250);
 }
 
-function switchToFallbackMusic(){
-  if(!customMusic || usingFallbackMusic || customMusic.dataset.objectUrl) return;
-  usingFallbackMusic=true;
-  customMusic.src=FALLBACK_MUSIC_PATH;
+function setMusicSource(index){
+  if(!customMusic) return false;
+  if(index < 0 || index >= MUSIC_SOURCES.length) return false;
+
+  musicSourceIndex=index;
+  usingFallbackMusic=(index===MUSIC_SOURCES.length-1);
+  customMusic.pause();
+  customMusic.src=MUSIC_SOURCES[index];
   customMusic.load();
+
   const btn=document.getElementById("soundBtn");
-  if(btn) btn.textContent="🎵 Bật nhạc";
+  if(btn){
+    if(btn.textContent!=="⏳ Đang tải nhạc...") btn.textContent="🎵 Bật nhạc";
+    btn.classList.remove("music-on");
+  }
+  return true;
+}
+
+function switchToFallbackMusic(){
+  // Tương thích với code cũ: chuyển sang nguồn kế tiếp.
+  return setMusicSource(Math.min(musicSourceIndex+1,MUSIC_SOURCES.length-1));
+}
+
+async function tryPlayMusicFromCurrentSource(){
+  if(!customMusic) throw new Error("Không tìm thấy audio element.");
+  await customMusic.play();
+  return true;
+}
+
+async function playMusicWithFallback(){
+  const btn=document.getElementById("soundBtn");
+  let lastError=null;
+
+  for(let i=musicSourceIndex;i<MUSIC_SOURCES.length;i++){
+    try{
+      if(i!==musicSourceIndex) setMusicSource(i);
+      if(btn) btn.textContent="⏳ Đang tải nhạc...";
+      await tryPlayMusicFromCurrentSource();
+
+      musicPlaying=true;
+      if(btn){
+        btn.textContent="🔇 Tắt nhạc";
+        btn.classList.add("music-on");
+      }
+
+      if(i===0){
+        toast("Đang phát bài Trúc An.");
+      }else if(i===1){
+        toast("Đang phát bài Trúc An từ file trên website.");
+      }else{
+        toast("Bài Trúc An chưa tải được nên đang phát nhạc dự phòng.");
+      }
+      return true;
+    }catch(err){
+      lastError=err;
+      console.warn("Music source failed:",MUSIC_SOURCES[i],err);
+      if(i < MUSIC_SOURCES.length-1){
+        setMusicSource(i+1);
+      }
+    }
+  }
+
+  if(btn){
+    btn.textContent="🎵 Bật nhạc";
+    btn.classList.remove("music-on");
+  }
+  throw lastError || new Error("Không nguồn nhạc nào phát được.");
 }
 
 customMusic?.addEventListener("error",()=>{
-  if(!usingFallbackMusic && !customMusic.dataset.objectUrl){
-    switchToFallbackMusic();
+  console.warn("Audio load error:",customMusic.currentSrc || customMusic.src);
+  if(musicSourceIndex < MUSIC_SOURCES.length-1){
+    setMusicSource(musicSourceIndex+1);
   }else{
     const btn=document.getElementById("soundBtn");
-    if(btn) btn.textContent="🎵 Nhạc chưa sẵn sàng";
+    if(btn) btn.textContent="🎵 Bật nhạc";
   }
 });
 
@@ -986,6 +1050,7 @@ customMusic?.addEventListener("pause",()=>{
 });
 
 customMusic?.addEventListener("canplay",()=>{
+  customMusic.dataset.readySource=customMusic.currentSrc || customMusic.src;
   const btn=document.getElementById("soundBtn");
   if(btn && customMusic.paused){
     btn.textContent="🎵 Bật nhạc";
@@ -1010,39 +1075,21 @@ document.getElementById("soundBtn").addEventListener("click", async ()=>{
 
   const btn=document.getElementById("soundBtn");
 
-  try{
-    if(customMusic.paused){
-      await customMusic.play();
-      musicPlaying=true;
-      btn.textContent="🔇 Tắt nhạc";
-      btn.classList.add("music-on");
-      toast(usingFallbackMusic ? "Đang phát nhạc khu vườn dự phòng." : "Đang phát bài Trúc An.");
-    }else{
-      customMusic.pause();
-      musicPlaying=false;
-      btn.textContent="🎵 Bật nhạc";
-      btn.classList.remove("music-on");
-    }
-  }catch(err){
-    console.error("Background music:",err);
-
-    if(!usingFallbackMusic){
-      switchToFallbackMusic();
-      try{
-        await customMusic.play();
-        musicPlaying=true;
-        btn.textContent="🔇 Tắt nhạc";
-        btn.classList.add("music-on");
-        toast("Không đọc được bài Trúc An nên đang phát nhạc dự phòng.");
-        return;
-      }catch(fallbackErr){
-        console.error("Fallback music:",fallbackErr);
-      }
-    }
-
+  if(!customMusic.paused){
+    customMusic.pause();
+    musicPlaying=false;
     btn.textContent="🎵 Bật nhạc";
     btn.classList.remove("music-on");
-    toast("Không phát được nhạc. Kiểm tra file Trúc An.mp3 trên GitHub.");
+    return;
+  }
+
+  try{
+    await playMusicWithFallback();
+  }catch(err){
+    console.error("Không phát được nhạc:",err);
+    btn.textContent="🎵 Bật nhạc";
+    btn.classList.remove("music-on");
+    toast("Không phát được nhạc. Hãy kiểm tra kết nối mạng rồi bấm lại.");
   }
 });
 

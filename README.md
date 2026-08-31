@@ -329,3 +329,14 @@ Nếu triển khai công khai trên Internet và cần quản lý thật, nên d
 - Lỗi nhạc/Firebase/thời tiết/chatbot không còn làm nút `Vào khu vườn` bị đơ.
 - Mỗi module được khởi tạo độc lập bằng `safeInit`.
 - Thêm SHA-256 fallback bằng JavaScript nếu WebCrypto của trình duyệt bị chặn.
+
+
+## V23 – Sửa nhạc bằng nguồn GitHub Raw
+- Repository hiện có file `Trúc An.mp3`.
+- Nguồn ưu tiên 1: `https://raw.githubusercontent.com/lammynien-ui/vuon-hoa-lop-33/main/Tr%C3%BAc%20An.mp3`
+- Nguồn ưu tiên 2: `Tr%C3%BAc%20An.mp3`
+- Nguồn dự phòng: `music/default-garden.wav`
+- Khi bấm `🎵 Bật nhạc`, website tự thử lần lượt từng nguồn.
+- Không cần đổi nội dung bài hát.
+- Tăng âm lượng nhạc nền từ 34% lên 55%.
+- Âm thanh tưới nước/cộng-trừ điểm vẫn độc lập.
