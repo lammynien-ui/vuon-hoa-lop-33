@@ -62,6 +62,11 @@
 
   <main>
     <section class="toolbar">
+      <label class="tool-btn file-label admin-only hidden" title="Nghe thử một bài nhạc trên thiết bị giáo viên. Muốn dùng chung, đặt bài hát tại music/music.mp3 trên GitHub.">
+        🎵 Chọn nhạc thử
+        <input id="musicInput" type="file" accept="audio/*" hidden>
+      </label>
+      <button id="soundBtn" class="tool-btn" title="Phát hoặc tạm dừng nhạc nền khu vườn">🎵 Phát nhạc</button>
       <button id="effectsBtn" class="tool-btn" title="Bật/tắt tiếng tưới nước, cộng điểm và chăm sóc hoa">🔊 Hiệu ứng: Bật</button>
       <button id="weatherBtn" class="tool-btn" title="Đổi bầu trời của khu vườn">🌤 Bầu trời</button>
       <button id="dailyMessageBtn" class="tool-btn fairy-btn" title="Xem thông điệp tích cực hôm nay">🦋 Thông điệp hôm nay</button>
@@ -76,30 +81,6 @@
       </label>
       <button id="resetAllBtn" class="tool-btn danger admin-only hidden">↺ Đặt lại vườn</button>
     </section>
-    <section id="teacherMusicPanel" class="teacher-music-panel admin-only hidden">
-      <div class="teacher-music-head">
-        <div>
-          <strong>🎵 Nhạc trên máy giáo viên</strong>
-          <small>Chỉ phát trên thiết bị của cô. PH/HS không thấy và không nghe.</small>
-        </div>
-        <label class="teacher-music-upload">
-          📂 Chọn bài nhạc
-          <input id="musicInput" type="file" accept=".mp3,.wav,.m4a,.aac,.ogg,audio/*" hidden>
-        </label>
-      </div>
-
-      <div id="teacherMusicEmpty" class="teacher-music-empty">
-        Chưa chọn bài nhạc. Cô bấm <b>Chọn bài nhạc</b> để phát trực tiếp từ máy.
-      </div>
-
-      <div id="teacherMusicNow" class="teacher-music-now hidden">
-        <span>🎶 <b id="teacherMusicName">Bài nhạc</b></span>
-        <button id="teacherMusicRemove" type="button" class="teacher-music-remove">✕ Bỏ bài</button>
-      </div>
-
-      <audio id="customMusic" class="teacher-native-audio hidden" controls loop preload="none"></audio>
-    </section>
-
 
     <section class="garden-wrap">
 
@@ -295,7 +276,8 @@
     </form>
   </aside>
 
-<div id="toast" class="toast"></div>
+<audio id="customMusic" loop preload="metadata" data-primary="music/music.mp3" data-fallback="music/default-garden.wav"></audio>
+  <div id="toast" class="toast"></div>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
