@@ -310,3 +310,14 @@ Nếu triển khai công khai trên Internet và cần quản lý thật, nên d
 - Nút chọn nhạc thử chỉ hiện cho giáo viên.
 - Sửa hàm `animateWater()` và `ping()` bị thiếu ở các phiên bản trước.
 - Sau đăng nhập thành công, trạng thái lỗi cũ được xóa.
+
+
+## V21 – Bài Trúc An dùng trực tiếp từ GitHub
+- File nhạc hiện có trong repository: `Trúc An.mp3` ở thư mục gốc.
+- Website trỏ trực tiếp tới file đó bằng đường dẫn `Tr%C3%BAc%20An.mp3`.
+- Không sửa, không chuyển đổi, không đổi tên file bài hát.
+- Nút `🎵 Bật nhạc` / `🔇 Tắt nhạc`.
+- Nhạc lặp khi bật.
+- Không autoplay: người dùng bấm Bật nhạc một lần theo chính sách trình duyệt.
+- Âm thanh tưới nước, cộng/trừ điểm của V20 hoạt động riêng.
+- Xóa cơ chế nhạc cục bộ cũ để tránh ghi đè bài Trúc An.

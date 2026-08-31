@@ -65,12 +65,12 @@ let fxCtx = null;
 let usingFallbackMusic = false;
 
 const customMusic = document.getElementById("customMusic");
-const SHARED_MUSIC_PATH = "music/music.mp3";
+const SHARED_MUSIC_PATH = "Tr%C3%BAc%20An.mp3";
 const FALLBACK_MUSIC_PATH = "music/default-garden.wav";
 
 if(customMusic){
   customMusic.volume = 0.34;
-  customMusic.src = SHARED_MUSIC_PATH;
+  if(!customMusic.getAttribute("src")) customMusic.src = SHARED_MUSIC_PATH;
   customMusic.load();
 }
 
@@ -964,7 +964,7 @@ function switchToFallbackMusic(){
   customMusic.src=FALLBACK_MUSIC_PATH;
   customMusic.load();
   const btn=document.getElementById("soundBtn");
-  if(btn) btn.textContent="🎵 Phát nhạc";
+  if(btn) btn.textContent="🎵 Bật nhạc";
 }
 
 customMusic?.addEventListener("error",()=>{
@@ -976,10 +976,19 @@ customMusic?.addEventListener("error",()=>{
   }
 });
 
+customMusic?.addEventListener("pause",()=>{
+  musicPlaying=false;
+  const btn=document.getElementById("soundBtn");
+  if(btn){
+    btn.textContent="🎵 Bật nhạc";
+    btn.classList.remove("music-on");
+  }
+});
+
 customMusic?.addEventListener("canplay",()=>{
   const btn=document.getElementById("soundBtn");
   if(btn && customMusic.paused){
-    btn.textContent="🎵 Phát nhạc";
+    btn.textContent="🎵 Bật nhạc";
   }
 });
 
@@ -999,77 +1008,44 @@ document.getElementById("effectsBtn")?.addEventListener("click",()=>{
 document.getElementById("soundBtn").addEventListener("click", async ()=>{
   if(!customMusic) return;
 
+  const btn=document.getElementById("soundBtn");
+
   try{
-    // Thao tác click của người dùng cho phép trình duyệt phát audio.
     if(customMusic.paused){
       await customMusic.play();
       musicPlaying=true;
-      document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
-      toast(usingFallbackMusic ? "Đang phát nhạc khu vườn dự phòng." : "Đang phát nhạc nền của lớp.");
+      btn.textContent="🔇 Tắt nhạc";
+      btn.classList.add("music-on");
+      toast(usingFallbackMusic ? "Đang phát nhạc khu vườn dự phòng." : "Đang phát bài Trúc An.");
     }else{
       customMusic.pause();
       musicPlaying=false;
-      document.getElementById("soundBtn").textContent="🎵 Phát nhạc";
+      btn.textContent="🎵 Bật nhạc";
+      btn.classList.remove("music-on");
     }
-  }catch(e){
-    console.error("Background music:",e);
+  }catch(err){
+    console.error("Background music:",err);
 
-    // Nếu file MP3 của lớp lỗi/chưa có thì chuyển ngay sang bản dự phòng.
-    if(!usingFallbackMusic && !customMusic.dataset.objectUrl){
+    if(!usingFallbackMusic){
       switchToFallbackMusic();
       try{
         await customMusic.play();
         musicPlaying=true;
-        document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
-        toast("File nhạc của lớp chưa đọc được nên đang phát nhạc khu vườn dự phòng.");
+        btn.textContent="🔇 Tắt nhạc";
+        btn.classList.add("music-on");
+        toast("Không đọc được bài Trúc An nên đang phát nhạc dự phòng.");
         return;
-      }catch(e2){
-        console.error("Fallback music:",e2);
+      }catch(fallbackErr){
+        console.error("Fallback music:",fallbackErr);
       }
     }
 
-    toast("Trình duyệt chưa cho phép phát nhạc. Hãy bấm lại nút Phát nhạc.");
+    btn.textContent="🎵 Bật nhạc";
+    btn.classList.remove("music-on");
+    toast("Không phát được nhạc. Kiểm tra file Trúc An.mp3 trên GitHub.");
   }
 });
 
-// Chọn nhạc chỉ để nghe thử trên thiết bị giáo viên.
-// Muốn PH/HS cùng nghe, upload bài hát với tên music/music.mp3 lên GitHub.
-document.getElementById("musicInput").addEventListener("change", async e=>{
-  const file=e.target.files?.[0];
-  if(!file) return;
-
-  if(!file.type.startsWith("audio/")){
-    toast("Vui lòng chọn file âm thanh.");
-    return;
-  }
-
-  try{
-    setMusicFile(file);
-    await customMusic.play();
-    musicPlaying=true;
-    document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
-    toast("Đang nghe thử bài nhạc trên thiết bị này.");
-  }catch(err){
-    console.error(err);
-    toast("Không thể mở bài nhạc này.");
-  }finally{
-    e.target.value="";
-  }
-});
-
-function setMusicFile(file){
-  if(customMusic.dataset.objectUrl){
-    URL.revokeObjectURL(customMusic.dataset.objectUrl);
-  }
-  const url=URL.createObjectURL(file);
-  customMusic.src=url;
-  customMusic.dataset.objectUrl=url;
-  usingFallbackMusic=false;
-  customMusic.load();
-  document.getElementById("soundBtn").textContent="🎵 Phát nhạc";
-}
-
-updateEffectsButton();
 
 function openMusicDB(){
   return new Promise((resolve,reject)=>{
@@ -1096,7 +1072,7 @@ async function saveMusicToDB(file){
 }
 
 async function loadMusicFromDB(){
-  // V16: nhạc dùng chung được đọc từ music/music.mp3.
+  // V21: chỉ dùng bài Trúc An.mp3 trên GitHub; không ghi đè bằng nhạc cục bộ cũ.
   return;
 }
 
