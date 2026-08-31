@@ -11,7 +11,6 @@
    ========================================================= */
 
 // ĐỔI PIN GIÁO VIÊN Ở ĐÂY:
-const TEACHER_PIN = "3300";
 
 const STORAGE_KEY = "vuonhoa33_2026_2027_v1";
 const GOAL_TARGET = 100;
@@ -76,7 +75,6 @@ let cloudDocRef = null;
 let cloudDocExists = false;
 let cloudUnsubscribe = null;
 let cloudSaveTimer = null;
-let localTeacherDemo = false;
 const FIREBASE_CLASS_ID = window.VUONHOA_CLASS_ID || "lop-3-3-2026-2027";
 
 /* V15 Class Gate */
@@ -453,7 +451,7 @@ function getSelected(){ return state.students.find(x=>x.id===selectedStudentId);
 function refreshAdminVisibility(){
   document.querySelectorAll(".admin-only").forEach(el=>el.classList.toggle("hidden",!isTeacher));
   teacherBtn.textContent = isTeacher
-    ? (firebaseAuth?.currentUser ? "🔓 Giáo viên • Firebase" : "🔓 Giáo viên • Cục bộ")
+    ? "🔓 Giáo viên • Firebase"
     : "🔐 Góc giáo viên";
 }
 
@@ -470,72 +468,178 @@ teacherBtn.addEventListener("click",async ()=>{
         await firebaseAuth.signOut();
         toast("Đã đăng xuất tài khoản giáo viên.");
       }catch(e){ toast("Không thể đăng xuất."); }
-    }else{
-      localTeacherDemo=false;
-      isTeacher=false;
-      refreshAdminVisibility();
-      toast("Đã thoát chế độ thử.");
     }
     return;
   }
 
   document.getElementById("teacherEmailInput").value="";
   document.getElementById("teacherPasswordInput").value="";
-  document.getElementById("pinInput").value="";
+  clearAuthDiagnostic();
   loginModal.classList.remove("hidden");
-  setTimeout(()=>document.getElementById(firebaseReady?"teacherEmailInput":"pinInput").focus(),50);
+  setTimeout(()=>document.getElementById("teacherEmailInput")?.focus(),50);
 });
 
 document.getElementById("loginBtn").addEventListener("click",cloudTeacherLogin);
+document.getElementById("resetPasswordBtn")?.addEventListener("click",sendTeacherPasswordReset);
+document.getElementById("authCheckBtn")?.addEventListener("click",runFirebaseConnectionCheck);
 document.getElementById("teacherPasswordInput").addEventListener("keydown",e=>{if(e.key==="Enter")cloudTeacherLogin();});
-document.getElementById("localLoginBtn").addEventListener("click",localTeacherLogin);
-document.getElementById("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter")localTeacherLogin();});
 
-async function cloudTeacherLogin(){
+
+function showAuthDiagnostic(kind,title,message){
+  const box=document.getElementById("authDiagnostic");
+  const titleEl=document.getElementById("authDiagnosticTitle");
+  const textEl=document.getElementById("authDiagnosticText");
+  if(!box || !titleEl || !textEl) return;
+  box.className=`auth-diagnostic ${kind}`;
+  titleEl.textContent=title;
+  textEl.textContent=message;
+}
+
+function clearAuthDiagnostic(){
+  const box=document.getElementById("authDiagnostic");
+  if(!box) return;
+  box.className="auth-diagnostic hidden";
+  document.getElementById("authDiagnosticText").textContent="";
+}
+
+function friendlyAuthError(err){
+  const code=String(err?.code || "unknown");
+  const message=String(err?.message || "");
+
+  const map={
+    "auth/invalid-credential":"Firebase không chấp nhận email/mật khẩu này. Hãy dùng email đúng tài khoản Firebase và mật khẩu mới nhất.",
+    "auth/wrong-password":"Mật khẩu chưa đúng.",
+    "auth/user-not-found":"Không tìm thấy tài khoản email này trong Firebase project đang kết nối.",
+    "auth/user-disabled":"Tài khoản giáo viên đang bị vô hiệu hóa trong Firebase.",
+    "auth/operation-not-allowed":"Email/Password chưa được bật trong Authentication → Sign-in method.",
+    "auth/unauthorized-domain":"Tên miền GitHub Pages chưa có trong Authentication → Settings → Authorized domains.",
+    "auth/invalid-api-key":"Firebase API key trong firebase-config.js không đúng hoặc đã bị vô hiệu hóa.",
+    "auth/api-key-not-valid.-please-pass-a-valid-api-key.":"Firebase API key không hợp lệ.",
+    "auth/network-request-failed":"Trình duyệt không kết nối được máy chủ Firebase. Kiểm tra mạng, VPN, tiện ích chặn quảng cáo hoặc tường lửa.",
+    "auth/too-many-requests":"Firebase tạm chặn đăng nhập vì có quá nhiều lần thử. Chờ một lúc rồi thử lại.",
+    "auth/internal-error":"Firebase trả về lỗi nội bộ. Thử tải lại trang rồi đăng nhập lại."
+  };
+
+  return {
+    code,
+    friendly:map[code] || "Firebase đã trả về một lỗi chưa được nhận diện.",
+    raw:message
+  };
+}
+
+async function runFirebaseConnectionCheck(){
   if(!firebaseReady || !firebaseAuth){
-    toast("Firebase chưa được cấu hình. Xem file FIREBASE_SETUP.md.");
+    showAuthDiagnostic(
+      "error",
+      "❌ Firebase chưa sẵn sàng",
+      `Project dự kiến: ${window.VUONHOA_FIREBASE_CONFIG?.projectId || "không rõ"}. Hãy kiểm tra firebase-config.js.`
+    );
+    return;
+  }
+
+  const cfg=window.VUONHOA_FIREBASE_CONFIG || {};
+  const online=navigator.onLine ? "Có mạng" : "Trình duyệt báo mất mạng";
+  const current=firebaseAuth.currentUser ? firebaseAuth.currentUser.email : "Chưa đăng nhập";
+
+  showAuthDiagnostic(
+    "info",
+    "🧪 Kết nối Firebase",
+    `Project: ${cfg.projectId || "?"} • Auth domain: ${cfg.authDomain || "?"} • ${online} • Phiên hiện tại: ${current}`
+  );
+}
+
+async function sendTeacherPasswordReset(){
+  if(!firebaseReady || !firebaseAuth){
+    showAuthDiagnostic("error","❌ Chưa kết nối Firebase","Không thể gửi email đặt lại mật khẩu.");
     return;
   }
   const email=document.getElementById("teacherEmailInput").value.trim();
-  const password=document.getElementById("teacherPasswordInput").value;
-  if(!email || !password){
-    toast("Vui lòng nhập email và mật khẩu giáo viên.");
+  if(!email){
+    showAuthDiagnostic("error","⚠️ Thiếu email","Nhập email giáo viên trước.");
     return;
   }
-
   try{
-    setSyncStatus("connecting","🔐 Đang đăng nhập...");
-    await firebaseAuth.signInWithEmailAndPassword(email,password);
-    closeModal("loginModal");
-
-    // Nếu đây là lần đầu và đám mây chưa có dữ liệu, đưa dữ liệu máy hiện tại lên.
-    const snap=await cloudDocRef.get();
-    if(!snap.exists){
-      await migrateLocalDataToCloud(true);
-    }
-
-    toast("Đã đăng nhập giáo viên và bật đồng bộ.");
+    await firebaseAuth.sendPasswordResetEmail(email);
+    showAuthDiagnostic(
+      "success",
+      "📩 Đã gửi email đặt lại mật khẩu",
+      `Firebase project ${window.VUONHOA_FIREBASE_CONFIG?.projectId || ""} đã gửi email reset đến ${email}. Chỉ dùng email mới nhất.`
+    );
   }catch(err){
-    console.error(err);
-    setSyncStatus("error","⚠️ Đăng nhập lỗi");
-    const code=String(err?.code || "");
-    if(code.includes("invalid-credential") || code.includes("wrong-password") || code.includes("user-not-found")){
-      toast("Email hoặc mật khẩu Firebase chưa đúng.");
-    }else{
-      toast("Không đăng nhập được Firebase. Kiểm tra cấu hình/mạng.");
-    }
+    const d=friendlyAuthError(err);
+    showAuthDiagnostic("error",`❌ ${d.code}`,`${d.friendly} ${d.raw}`);
   }
 }
 
-function localTeacherLogin(){
-  if(document.getElementById("pinInput").value===TEACHER_PIN){
-    localTeacherDemo=true;
-    isTeacher=true;
+async function cloudTeacherLogin(){
+  clearAuthDiagnostic();
+
+  if(!firebaseReady || !firebaseAuth){
+    showAuthDiagnostic(
+      "error",
+      "❌ Firebase chưa được cấu hình",
+      `Project hiện tại: ${window.VUONHOA_FIREBASE_CONFIG?.projectId || "không rõ"}.`
+    );
+    return;
+  }
+
+  const email=document.getElementById("teacherEmailInput").value.trim();
+  const password=document.getElementById("teacherPasswordInput").value;
+
+  if(!email || !password){
+    showAuthDiagnostic("error","⚠️ Thiếu thông tin","Vui lòng nhập email và mật khẩu giáo viên.");
+    return;
+  }
+
+  const btn=document.getElementById("loginBtn");
+  const original=btn.textContent;
+  btn.disabled=true;
+  btn.textContent="⏳ Đang xác minh tài khoản...";
+
+  try{
+    setSyncStatus("connecting","🔐 Đang đăng nhập...");
+
+    // BƯỚC 1: chỉ xác minh Authentication.
+    const credential=await firebaseAuth.signInWithEmailAndPassword(email,password);
+    const user=credential.user;
+
+    showAuthDiagnostic(
+      "success",
+      "✅ Firebase Authentication thành công",
+      `Đã đăng nhập ${user.email}. UID: ${user.uid}. Đang kiểm tra dữ liệu Firestore...`
+    );
+
     closeModal("loginModal");
+    isTeacher=true;
     refreshAdminVisibility();
-    toast("Đang ở chế độ thử trên máy này – chưa đồng bộ.");
-  }else{
-    toast("PIN thử chưa đúng.");
+    setSyncStatus("cloud","☁️ Đã đăng nhập • Giáo viên");
+    toast("Đăng nhập Firebase thành công.");
+
+    // BƯỚC 2: Firestore chạy riêng. Lỗi ở đây KHÔNG được báo nhầm là lỗi đăng nhập.
+    try{
+      const snap=await cloudDocRef.get();
+      if(!snap.exists){
+        await migrateLocalDataToCloud(true);
+      }
+    }catch(firestoreErr){
+      console.error("Firestore after login:",firestoreErr);
+      setSyncStatus("error","⚠️ Đã đăng nhập • Lỗi Firestore");
+      toast("Đăng nhập thành công nhưng Firestore đang có lỗi. Kiểm tra Rules.");
+    }
+
+  }catch(err){
+    console.error("Firebase Auth login error:",err);
+    setSyncStatus("error","⚠️ Đăng nhập lỗi");
+
+    const d=friendlyAuthError(err);
+    showAuthDiagnostic(
+      "error",
+      `❌ ${d.code}`,
+      `${d.friendly} Chi tiết Firebase: ${d.raw}`
+    );
+  }finally{
+    btn.disabled=false;
+    btn.textContent=original;
   }
 }
 const reasonGrid=document.getElementById("reasonGrid");
@@ -1337,16 +1441,12 @@ async function initFirebaseSync(){
     firebaseReady=true;
 
     firebaseAuth.onAuthStateChanged(user=>{
-      if(user){
-        localTeacherDemo=false;
-        isTeacher=true;
-        refreshAdminVisibility();
-        setSyncStatus("cloud","☁️ Firestore • Giáo viên");
-      }else{
-        if(!localTeacherDemo) isTeacher=false;
-        refreshAdminVisibility();
-        setSyncStatus("cloud","☁️ Firestore • Chỉ xem");
-      }
+      isTeacher=!!user;
+      refreshAdminVisibility();
+      setSyncStatus(
+        "cloud",
+        user ? "☁️ Firestore • Giáo viên" : "☁️ Firestore • Chỉ xem"
+      );
     });
 
     cloudDocRef.onSnapshot(snap=>{

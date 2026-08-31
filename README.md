@@ -272,3 +272,19 @@ Nếu triển khai công khai trên Internet và cần quản lý thật, nên d
 - Nhạc dùng file `music/music.mp3` trên GitHub Pages.
 - Firebase config đã được điền theo project `vuon-hoa-lop-ba`.
 - Firestore Rules V16 hỗ trợ subcollection `students`.
+
+
+## V17 – Chẩn đoán đăng nhập Firebase
+- Hiện trực tiếp mã lỗi Firebase trong cửa sổ Góc giáo viên.
+- Có nút `🧪 Kiểm tra Firebase` để xem project/auth domain/phiên hiện tại.
+- Có nút `🔑 Gửi email đặt lại mật khẩu` từ đúng project mà website đang kết nối.
+- Tách Authentication khỏi Firestore: đăng nhập thành công sẽ không bị báo nhầm là thất bại nếu bước tạo dữ liệu Firestore lỗi.
+- Sửa vị trí trạng thái Firestore để không chồng lên các nút.
+
+
+## V18 – Xóa chế độ thử khỏi website công khai
+- Xóa hoàn toàn phần “Chỉ thử trên máy này”.
+- Không còn hiển thị hoặc sử dụng PIN thử nghiệm 3300.
+- Không còn chế độ quản trị cục bộ dành cho PH/HS.
+- Góc giáo viên chỉ hoạt động khi đăng nhập Firebase Authentication thành công.
+- Giữ nguyên công cụ chẩn đoán đăng nhập Firebase của V17.

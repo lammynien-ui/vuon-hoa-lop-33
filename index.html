@@ -169,23 +169,25 @@
       <h2>🔐 Góc giáo viên</h2>
 
       <div id="firebaseLoginArea">
-        <p class="login-intro">Đăng nhập tài khoản giáo viên Firebase để cập nhật khu vườn dùng chung.</p>
+        <p class="login-intro">Chỉ giáo viên được cấp tài khoản Firebase mới có thể cập nhật khu vườn dùng chung.</p>
         <label class="login-label">Email giáo viên</label>
         <input id="teacherEmailInput" type="email" autocomplete="username" placeholder="giaovien@example.com" />
         <label class="login-label">Mật khẩu</label>
         <input id="teacherPasswordInput" type="password" autocomplete="current-password" placeholder="Mật khẩu Firebase" />
         <button id="loginBtn" class="primary-btn full">☁️ Đăng nhập Firebase</button>
+
+        <div id="authDiagnostic" class="auth-diagnostic hidden" aria-live="polite">
+          <strong id="authDiagnosticTitle">Thông tin đăng nhập</strong>
+          <div id="authDiagnosticText"></div>
+        </div>
+
+        <div class="auth-help-row">
+          <button id="resetPasswordBtn" type="button" class="auth-help-btn">🔑 Gửi email đặt lại mật khẩu</button>
+          <button id="authCheckBtn" type="button" class="auth-help-btn">🧪 Kiểm tra Firebase</button>
+        </div>
       </div>
 
-      <div class="login-divider"><span>hoặc</span></div>
 
-      <details class="demo-login">
-        <summary>Chỉ thử trên máy này</summary>
-        <p class="hint">Chế độ thử không đồng bộ cho phụ huynh/học sinh.</p>
-        <input id="pinInput" type="password" inputmode="numeric" maxlength="8" placeholder="PIN thử nghiệm" />
-        <button id="localLoginBtn" class="secondary-btn full">💻 Mở chế độ thử</button>
-        <p class="hint">PIN thử mặc định: <strong>3300</strong>.</p>
-      </details>
     </div>
   </div>
 

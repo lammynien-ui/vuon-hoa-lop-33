@@ -2430,3 +2430,91 @@ body.gate-locked > *:not(.class-gate){
   50%{transform:translateX(7px)}
   75%{transform:translateX(-4px)}
 }
+
+
+/* ============================================================
+   V17 – CHẨN ĐOÁN ĐĂNG NHẬP FIREBASE
+   ============================================================ */
+.auth-diagnostic{
+  margin-top:12px;
+  padding:11px 12px;
+  border-radius:13px;
+  background:#f3f6f0;
+  border:1px solid #dae5d6;
+  font-size:12px;
+  line-height:1.45;
+  text-align:left;
+  color:#536254;
+  word-break:break-word;
+}
+.auth-diagnostic.error{
+  display:block!important;
+  background:#fff0ef;
+  border-color:#f0c3bf;
+  color:#93433d;
+}
+.auth-diagnostic.success{
+  display:block!important;
+  background:#eaf8ed;
+  border-color:#bfe1c5;
+  color:#397448;
+}
+.auth-diagnostic.info{
+  display:block!important;
+  background:#eef6ff;
+  border-color:#c9ddf4;
+  color:#42647e;
+}
+.auth-diagnostic strong{
+  display:block;
+  margin-bottom:4px;
+  font-size:12.5px;
+}
+.auth-help-row{
+  display:flex;
+  gap:7px;
+  margin-top:9px;
+}
+.auth-help-btn{
+  flex:1;
+  border:1px solid #d8e3d5;
+  background:#fbfdf9;
+  color:#617062;
+  border-radius:11px;
+  padding:8px 7px;
+  font-size:10.5px;
+  line-height:1.25;
+  font-weight:900;
+  cursor:pointer;
+}
+.auth-help-btn:hover{background:#f0f7ed}
+
+/* Trạng thái Firestore không chen lên các nút toolbar */
+.sync-status{
+  position:relative !important;
+  z-index:1 !important;
+  flex:0 0 auto;
+  max-width:210px;
+  white-space:normal;
+  line-height:1.15;
+  text-align:center;
+}
+@media(max-width:760px){
+  .auth-help-row{flex-direction:column}
+}
+
+
+/* ============================================================
+   V18 – WEBSITE CÔNG KHAI: CHỈ FIREBASE, KHÔNG PIN THỬ
+   ============================================================ */
+#loginModal .modal-card{
+  max-height:min(760px,94vh);
+  overflow:auto;
+}
+#loginModal .demo-login,
+#loginModal .login-divider{
+  display:none !important;
+}
+#loginModal .small-card{
+  padding-bottom:26px;
+}
