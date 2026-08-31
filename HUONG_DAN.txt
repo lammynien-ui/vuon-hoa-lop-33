@@ -1,0 +1,15 @@
+V24 - CHỈ THAY 2 FILE
+
+Upload vào thư mục gốc repository vuon-hoa-lop-33:
+1. index.html
+2. script.js
+
+Cho phép GitHub ghi đè 2 file cũ.
+Không cần xóa Trúc An.mp3.
+Không cần sửa Firebase, Firestore, style.css.
+
+Sau Commit:
+- Chờ GitHub Pages deploy xong.
+- Mở website.
+- Nhấn Ctrl + F5.
+- Bấm 🎵 Bật nhạc.
