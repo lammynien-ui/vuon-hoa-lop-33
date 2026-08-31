@@ -62,9 +62,17 @@ let soundEffectsOn = localStorage.getItem("vuonhoa33_fx") !== "off";
 let musicPlaying = false;
 let musicCtx = null;
 let fxCtx = null;
+let usingFallbackMusic = false;
 
 const customMusic = document.getElementById("customMusic");
+const SHARED_MUSIC_PATH = "music/music.mp3";
+const FALLBACK_MUSIC_PATH = "music/default-garden.wav";
 
+if(customMusic){
+  customMusic.volume = 0.34;
+  customMusic.src = SHARED_MUSIC_PATH;
+  customMusic.load();
+}
 
 
 /* Firebase V14 */
@@ -950,69 +958,28 @@ function animateWater(studentId,delta){
   setTimeout(()=>layer.remove(),1250);
 }
 
-const TRUC_AN_MUSIC_URL = "https://github.com/lammynien-ui/vuon-hoa-lop-33/raw/refs/heads/main/Tr%C3%BAc%20An.mp3";
-let trucAnAudioReady = false;
-
-if(customMusic){
-  customMusic.src = TRUC_AN_MUSIC_URL;
-  customMusic.volume = 0.65;
-  customMusic.loop = true;
-  customMusic.preload = "none";
-}
-
-function resetMusicButton(){
+function switchToFallbackMusic(){
+  if(!customMusic || usingFallbackMusic || customMusic.dataset.objectUrl) return;
+  usingFallbackMusic=true;
+  customMusic.src=FALLBACK_MUSIC_PATH;
+  customMusic.load();
   const btn=document.getElementById("soundBtn");
-  if(!btn) return;
-  btn.textContent="🎵 Bật nhạc";
-  btn.classList.remove("music-on");
+  if(btn) btn.textContent="🎵 Phát nhạc";
 }
-
-customMusic?.addEventListener("playing",()=>{
-  musicPlaying=true;
-  trucAnAudioReady=true;
-  const btn=document.getElementById("soundBtn");
-  if(btn){
-    btn.textContent="🔇 Tắt nhạc";
-    btn.classList.add("music-on");
-  }
-});
-
-customMusic?.addEventListener("pause",()=>{
-  musicPlaying=false;
-  resetMusicButton();
-});
 
 customMusic?.addEventListener("error",()=>{
-  musicPlaying=false;
-  resetMusicButton();
-  console.error("Trúc An audio error:", customMusic.error, customMusic.currentSrc);
-  toast("Không tải được bài Trúc An. Hãy kiểm tra lại sau khi GitHub Pages cập nhật.");
+  if(!usingFallbackMusic && !customMusic.dataset.objectUrl){
+    switchToFallbackMusic();
+  }else{
+    const btn=document.getElementById("soundBtn");
+    if(btn) btn.textContent="🎵 Nhạc chưa sẵn sàng";
+  }
 });
 
-document.getElementById("soundBtn")?.addEventListener("click", async ()=>{
+customMusic?.addEventListener("canplay",()=>{
   const btn=document.getElementById("soundBtn");
-  if(!customMusic || !btn) return;
-
-  if(!customMusic.paused){
-    customMusic.pause();
-    return;
-  }
-
-  try{
-    btn.textContent="⏳ Đang mở nhạc...";
-    // Gán lại URL ngay trong chính thao tác click của người dùng.
-    // Cách này tránh lỗi preload/cache của các bản trước.
-    if(customMusic.src !== TRUC_AN_MUSIC_URL){
-      customMusic.src = TRUC_AN_MUSIC_URL;
-    }
-    customMusic.currentTime = 0;
-    await customMusic.play();
-    toast("Đang phát bài Trúc An.");
-  }catch(err){
-    console.error("Không phát được Trúc An:",err);
-    resetMusicButton();
-    const code = err?.name || "AudioError";
-    toast(`Không phát được nhạc: ${code}`);
+  if(btn && customMusic.paused){
+    btn.textContent="🎵 Phát nhạc";
   }
 });
 
@@ -1032,44 +999,77 @@ document.getElementById("effectsBtn")?.addEventListener("click",()=>{
 document.getElementById("soundBtn").addEventListener("click", async ()=>{
   if(!customMusic) return;
 
-  const btn=document.getElementById("soundBtn");
-
   try{
+    // Thao tác click của người dùng cho phép trình duyệt phát audio.
     if(customMusic.paused){
       await customMusic.play();
       musicPlaying=true;
-      btn.textContent="🔇 Tắt nhạc";
-      btn.classList.add("music-on");
-      toast(usingFallbackMusic ? "Đang phát nhạc khu vườn dự phòng." : "Đang phát bài Trúc An.");
+      document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
+      toast(usingFallbackMusic ? "Đang phát nhạc khu vườn dự phòng." : "Đang phát nhạc nền của lớp.");
     }else{
       customMusic.pause();
       musicPlaying=false;
-      btn.textContent="🎵 Bật nhạc";
-      btn.classList.remove("music-on");
+      document.getElementById("soundBtn").textContent="🎵 Phát nhạc";
     }
-  }catch(err){
-    console.error("Background music:",err);
+  }catch(e){
+    console.error("Background music:",e);
 
-    if(!usingFallbackMusic){
+    // Nếu file MP3 của lớp lỗi/chưa có thì chuyển ngay sang bản dự phòng.
+    if(!usingFallbackMusic && !customMusic.dataset.objectUrl){
       switchToFallbackMusic();
       try{
         await customMusic.play();
         musicPlaying=true;
-        btn.textContent="🔇 Tắt nhạc";
-        btn.classList.add("music-on");
-        toast("Không đọc được bài Trúc An nên đang phát nhạc dự phòng.");
+        document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
+        toast("File nhạc của lớp chưa đọc được nên đang phát nhạc khu vườn dự phòng.");
         return;
-      }catch(fallbackErr){
-        console.error("Fallback music:",fallbackErr);
+      }catch(e2){
+        console.error("Fallback music:",e2);
       }
     }
 
-    btn.textContent="🎵 Bật nhạc";
-    btn.classList.remove("music-on");
-    toast("Không phát được nhạc. Kiểm tra file Trúc An.mp3 trên GitHub.");
+    toast("Trình duyệt chưa cho phép phát nhạc. Hãy bấm lại nút Phát nhạc.");
   }
 });
 
+// Chọn nhạc chỉ để nghe thử trên thiết bị giáo viên.
+// Muốn PH/HS cùng nghe, upload bài hát với tên music/music.mp3 lên GitHub.
+document.getElementById("musicInput").addEventListener("change", async e=>{
+  const file=e.target.files?.[0];
+  if(!file) return;
+
+  if(!file.type.startsWith("audio/")){
+    toast("Vui lòng chọn file âm thanh.");
+    return;
+  }
+
+  try{
+    setMusicFile(file);
+    await customMusic.play();
+    musicPlaying=true;
+    document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
+    toast("Đang nghe thử bài nhạc trên thiết bị này.");
+  }catch(err){
+    console.error(err);
+    toast("Không thể mở bài nhạc này.");
+  }finally{
+    e.target.value="";
+  }
+});
+
+function setMusicFile(file){
+  if(customMusic.dataset.objectUrl){
+    URL.revokeObjectURL(customMusic.dataset.objectUrl);
+  }
+  const url=URL.createObjectURL(file);
+  customMusic.src=url;
+  customMusic.dataset.objectUrl=url;
+  usingFallbackMusic=false;
+  customMusic.load();
+  document.getElementById("soundBtn").textContent="🎵 Phát nhạc";
+}
+
+updateEffectsButton();
 
 function openMusicDB(){
   return new Promise((resolve,reject)=>{
@@ -1096,7 +1096,7 @@ async function saveMusicToDB(file){
 }
 
 async function loadMusicFromDB(){
-  // V21: chỉ dùng bài Trúc An.mp3 trên GitHub; không ghi đè bằng nhạc cục bộ cũ.
+  // V16: nhạc dùng chung được đọc từ music/music.mp3.
   return;
 }
 
@@ -1496,64 +1496,9 @@ async function sha256Hex(text){
     return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,"0")).join("");
   }
 
-  // Pure-JS fallback SHA-256 để Cổng lớp vẫn hoạt động nếu WebCrypto bị chặn.
-  function rightRotate(value,amount){return (value>>>amount)|(value<<(32-amount));}
-  const maxWord=Math.pow(2,32);
-  let result="";
-  const words=[];
-  const ascii=unescape(encodeURIComponent(String(text)));
-  const asciiBitLength=ascii.length*8;
-  let hash=sha256Hex.h=sha256Hex.h||[];
-  let k=sha256Hex.k=sha256Hex.k||[];
-  let primeCounter=k.length;
-  const isComposite={};
-  for(let candidate=2; primeCounter<64; candidate++){
-    if(!isComposite[candidate]){
-      for(let i=0;i<313;i+=candidate) isComposite[i]=candidate;
-      hash[primeCounter]=(Math.pow(candidate,.5)*maxWord)|0;
-      k[primeCounter++]=(Math.pow(candidate,1/3)*maxWord)|0;
-    }
-  }
-  let msg=ascii+"\x80";
-  while(msg.length%64-56) msg+="\x00";
-  for(let i=0;i<msg.length;i++){
-    const j=msg.charCodeAt(i);
-    words[i>>2]|=j<<((3-i)%4)*8;
-  }
-  words[words.length]=((asciiBitLength/maxWord)|0);
-  words[words.length]=asciiBitLength;
-  for(let j=0;j<words.length;){
-    const w=words.slice(j,j+=16);
-    const oldHash=hash.slice(0);
-    hash=hash.slice(0,8);
-    for(let i=0;i<64;i++){
-      const w15=w[i-15],w2=w[i-2];
-      const a=hash[0],e=hash[4];
-      const temp1=hash[7]
-        +(rightRotate(e,6)^rightRotate(e,11)^rightRotate(e,25))
-        +((e&hash[5])^((~e)&hash[6]))
-        +k[i]
-        +(w[i]=(i<16)?w[i]:(
-          w[i-16]
-          +(rightRotate(w15,7)^rightRotate(w15,18)^(w15>>>3))
-          +w[i-7]
-          +(rightRotate(w2,17)^rightRotate(w2,19)^(w2>>>10))
-        )|0);
-      const temp2=(rightRotate(a,2)^rightRotate(a,13)^rightRotate(a,22))
-        +((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
-      hash=[(temp1+temp2)|0].concat(hash);
-      hash[4]=(hash[4]+temp1)|0;
-      hash.pop();
-    }
-    for(let i=0;i<8;i++) hash[i]=(hash[i]+oldHash[i])|0;
-  }
-  for(let i=0;i<8;i++){
-    for(let j=3;j+1;j--){
-      const b=(hash[i]>>(j*8))&255;
-      result+=(b<16?"0":"")+b.toString(16);
-    }
-  }
-  return result;
+  // Fallback only for older/file browsers: simple comparison cannot verify custom hash.
+  // We deliberately do not keep a plaintext access code in the source.
+  throw new Error("Trình duyệt này không hỗ trợ xác minh mã an toàn.");
 }
 
 function gateSessionIsOpen(){
@@ -1585,8 +1530,6 @@ async function verifyClassGate(){
   const error=document.getElementById("classGateError");
   const card=document.querySelector(".class-gate-card");
   if(!input || !error) return;
-
-  error.textContent="";
 
   const now=Date.now();
   if(now < classGateLockedUntil){
@@ -2086,29 +2029,11 @@ function applyWeatherMode(mode, announce=true){
   }
 }
 
-// =========================================================
-// V22 – KHỞI TẠO AN TOÀN
-// Cổng Mã lớp phải hoạt động độc lập với mọi module khác.
-// =========================================================
-function safeInit(label, fn){
-  try{
-    const result=fn();
-    if(result && typeof result.catch==="function"){
-      result.catch(err=>console.error(`[V22] ${label}:`,err));
-    }
-  }catch(err){
-    console.error(`[V22] ${label}:`,err);
-  }
-}
-
-// Khởi tạo Cổng lớp ĐẦU TIÊN.
-// Vì vậy lỗi nhạc, Firebase, thời tiết... không thể làm nút Vào khu vườn bị đơ.
-safeInit("Class Gate", initClassGate);
-
-safeInit("Garden render", renderGarden);
-safeInit("Admin visibility", refreshAdminVisibility);
-safeInit("Music", loadMusicFromDB);
-safeInit("Weather", initWeatherSystem);
-safeInit("Daily fairy", initDailyFairyMessage);
-safeInit("Firebase", initFirebaseSync);
-safeInit("Scene cycle", startSceneCycle);
+renderGarden();
+refreshAdminVisibility();
+loadMusicFromDB();
+initWeatherSystem();
+initDailyFairyMessage();
+initFirebaseSync();
+initClassGate();
+startSceneCycle();
