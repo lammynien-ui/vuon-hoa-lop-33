@@ -1,15 +1,18 @@
 /*
-  VƯỜN HOA 3.3 – FIREBASE PROJECT
-  Project: VUON HOA LOP BA 3
+  VƯỜN HOA LỚP 3.3 – FIREBASE CONFIG
+  Version: V19
+  Firebase project: vuon-hoa-lop-ba
 
-  Firebase Web config is public app configuration, not the teacher password.
-  Teacher access is protected by Firebase Authentication + Firestore Rules.
+  Lưu ý:
+  - Firebase Web config là cấu hình client.
+  - Không chứa mật khẩu giáo viên.
+  - Quyền sửa dữ liệu được bảo vệ bằng Authentication + Firestore Rules.
 */
 
 window.VUONHOA_CLASS_ID = "lop-3-3-2026-2027";
 
 window.VUONHOA_FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBFrFb0G6Gt-BEl1G09Qrvk8zDW5G5d9QA",
+  apiKey: "AIzaSyBFrFbOG6Gt-BEl1GO9Qrvk8zDW5G5d9QA",
   authDomain: "vuon-hoa-lop-ba.firebaseapp.com",
   projectId: "vuon-hoa-lop-ba",
   storageBucket: "vuon-hoa-lop-ba.firebasestorage.app",

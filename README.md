@@ -288,3 +288,11 @@ Nếu triển khai công khai trên Internet và cần quản lý thật, nên d
 - Không còn chế độ quản trị cục bộ dành cho PH/HS.
 - Góc giáo viên chỉ hoạt động khi đăng nhập Firebase Authentication thành công.
 - Giữ nguyên công cụ chẩn đoán đăng nhập Firebase của V17.
+
+
+## V19 – Firebase API key đã sửa chính xác
+- Thay API key Firebase theo đúng cấu hình copy trực tiếp từ Firebase Console.
+- Sửa lỗi nhầm chữ `O` và số `0` trong API key.
+- Giữ nguyên V18: không còn chế độ thử/PIN 3300 trên website công khai.
+- Giữ nguyên chẩn đoán đăng nhập Firebase.
+- Giữ nguyên Firestore, mã lớp, chatbot, hiệu ứng thời tiết, Nàng tiên Bướm, 40 bông hoa.
