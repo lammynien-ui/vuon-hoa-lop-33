@@ -2589,3 +2589,347 @@ body.gate-locked > *:not(.class-gate){
   max-width:190px;
   min-height:42px;
 }
+
+
+/* V21 – nút bật/tắt nhạc */
+#soundBtn.music-on{
+  box-shadow:0 0 0 3px rgba(116,185,122,.18),0 8px 22px rgba(62,113,70,.16);
+}
+
+
+/* ============================================================
+   V25 – NHẠC CHỈ TRÊN MÁY GIÁO VIÊN
+   ============================================================ */
+#soundBtn.music-on{
+  box-shadow:0 0 0 3px rgba(116,185,122,.18),0 8px 22px rgba(62,113,70,.16);
+}
+#soundBtn:disabled{
+  opacity:.7;
+  cursor:not-allowed;
+}
+
+
+/* ============================================================
+   V26 FINAL – TRÌNH PHÁT NHẠC NATIVE CHỈ CHO GIÁO VIÊN
+   ============================================================ */
+.teacher-music-panel{
+  width:min(1080px,calc(100% - 48px));
+  margin:0 auto 14px;
+  padding:12px 14px;
+  border-radius:20px;
+  background:rgba(255,255,255,.82);
+  border:1px solid rgba(81,121,88,.18);
+  box-shadow:0 8px 24px rgba(55,87,66,.08);
+  backdrop-filter:blur(10px);
+}
+.teacher-music-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.teacher-music-head > div{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.teacher-music-head strong{
+  color:#365840;
+  font-size:14px;
+}
+.teacher-music-head small{
+  color:#738078;
+  font-size:10.5px;
+}
+.teacher-music-upload{
+  cursor:pointer;
+  border-radius:999px;
+  padding:9px 13px;
+  font-size:12px;
+  font-weight:900;
+  background:#eaf6e8;
+  color:#35543d;
+  border:1px solid #cfe5ce;
+}
+.teacher-music-empty{
+  margin-top:9px;
+  padding:8px 10px;
+  border-radius:12px;
+  background:#f6f8f3;
+  color:#768077;
+  font-size:11px;
+}
+.teacher-music-now{
+  margin-top:9px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  color:#405744;
+  font-size:11.5px;
+}
+.teacher-music-remove{
+  border:0;
+  border-radius:999px;
+  padding:6px 10px;
+  cursor:pointer;
+  background:#fff0ed;
+  color:#9c524a;
+  font-weight:800;
+  font-size:10.5px;
+}
+.teacher-native-audio{
+  width:100%;
+  height:44px;
+  margin-top:8px;
+}
+@media(max-width:720px){
+  .teacher-music-panel{
+    width:calc(100% - 24px);
+  }
+  .teacher-music-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}
+
+
+/* ============================================================
+   V27 FINAL – MỐC BÌNH NƯỚC 25 / 50 / 75 / 100
+   ============================================================ */
+
+/* Không còn nút bật/tắt hiệu ứng; hiệu ứng chạy tự động. */
+#effectsBtn{display:none!important}
+
+.garden-celebration{
+  position:fixed!important;
+  inset:0!important;
+  z-index:220!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+  display:block!important;
+  opacity:1!important;
+  background:transparent!important;
+}
+.garden-celebration.hidden{display:none!important}
+
+/* 25/50/75 chỉ là hiệu ứng môi trường, không che vườn bằng hộp chữ. */
+.garden-celebration.level-25 .celebration-title,
+.garden-celebration.level-50 .celebration-title,
+.garden-celebration.level-75 .celebration-title{
+  display:none!important;
+}
+
+/* 100 mới hiện thông điệp lớn giữa màn hình. */
+.garden-celebration.level-100 .celebration-title{
+  display:block!important;
+  position:absolute!important;
+  left:50%!important;
+  top:47%!important;
+  transform:translate(-50%,-50%);
+  z-index:20;
+  opacity:1;
+  padding:20px 30px;
+  background:rgba(255,255,255,.92);
+  border-radius:28px;
+  box-shadow:0 22px 60px rgba(80,83,38,.24);
+}
+.garden-celebration.level-100 .celebrate-big{
+  font-size:clamp(27px,4vw,54px);
+  color:#4e8b53;
+}
+.garden-celebration.level-100 .celebrate-small{
+  font-size:clamp(13px,1.5vw,20px);
+  color:#6e744f;
+  margin-top:7px;
+}
+
+/* Biểu tượng mốc */
+.milestone-main-icon{
+  position:absolute!important;
+  left:50%!important;
+  top:7%!important;
+  transform:translateX(-50%);
+  z-index:12;
+  opacity:1!important;
+  white-space:nowrap;
+  filter:drop-shadow(0 12px 30px rgba(59,75,63,.18));
+}
+
+/* 25/100 – nắng ấm + đốm sáng */
+.garden-celebration.level-25 .milestone-sky{
+  opacity:1!important;
+  background:
+    radial-gradient(circle at 50% 10%,rgba(255,228,116,.62),transparent 31%),
+    linear-gradient(180deg,rgba(255,240,166,.34),rgba(255,255,255,.06) 70%);
+  animation:v27WarmSky 4.8s ease both;
+}
+.garden-celebration.level-25 .milestone-main-icon{
+  font-size:clamp(78px,11vw,155px);
+  animation:v27SunPop 4.7s ease both!important;
+}
+body.party-25 .garden-wrap{
+  animation:v27WarmGarden 1.05s ease-in-out 4 alternate!important;
+}
+body.party-25 .flower-shell{
+  filter:brightness(1.10) saturate(1.08);
+}
+@keyframes v27WarmSky{
+  0%,100%{opacity:0}
+  12%,78%{opacity:1}
+}
+@keyframes v27SunPop{
+  0%{opacity:0;transform:translateX(-50%) translateY(-30px) scale(.4)}
+  20%,76%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+  100%{opacity:0;transform:translateX(-50%) translateY(-8px) scale(1.04)}
+}
+@keyframes v27WarmGarden{
+  to{
+    filter:brightness(1.06) saturate(1.05);
+    box-shadow:0 0 56px rgba(255,215,95,.48),0 15px 38px rgba(59,89,66,.13)
+  }
+}
+
+/* đốm sáng */
+.milestone-sparkle{
+  position:absolute;
+  left:var(--left);
+  top:var(--top);
+  font-size:var(--size);
+  z-index:10;
+  opacity:0;
+  animation:v27Sparkle var(--dur) ease-in-out both;
+}
+@keyframes v27Sparkle{
+  0%{opacity:0;transform:translateY(15px) scale(.3) rotate(0)}
+  25%,70%{opacity:1}
+  100%{opacity:0;transform:translateY(-38px) scale(1.25) rotate(50deg)}
+}
+
+/* 50/100 – xanh tươi + bướm/ong */
+.garden-celebration.level-50 .milestone-sky{
+  opacity:1!important;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(167,255,198,.33),transparent 49%),
+    linear-gradient(180deg,rgba(178,242,255,.22),rgba(176,255,199,.14));
+  animation:v27FreshSky 5.4s ease both;
+}
+.garden-celebration.level-50 .milestone-main-icon{
+  font-size:clamp(55px,8vw,105px);
+  animation:v27FriendIcon 5.2s ease both!important;
+}
+body.party-50 .garden-wrap{
+  animation:v27FreshGarden 1s ease-in-out 5 alternate!important;
+}
+@keyframes v27FreshSky{0%,100%{opacity:0}12%,80%{opacity:1}}
+@keyframes v27FreshGarden{
+  to{
+    filter:brightness(1.05) saturate(1.12);
+    box-shadow:0 0 60px rgba(92,225,168,.38),0 0 92px rgba(99,198,255,.22)
+  }
+}
+@keyframes v27FriendIcon{
+  0%{opacity:0;transform:translateX(-50%) scale(.45)}
+  18%,76%{opacity:1;transform:translateX(-50%) scale(1)}
+  100%{opacity:0;transform:translateX(-50%) translateY(-20px) scale(1.06)}
+}
+.flying-friend{
+  position:absolute;
+  left:var(--left);
+  top:var(--top);
+  z-index:14;
+  font-size:clamp(28px,3.7vw,48px);
+  animation:v27FriendFly var(--dur) ease-in-out both;
+}
+@keyframes v27FriendFly{
+  0%{opacity:0;transform:translate(-25px,75px) scale(.45) rotate(-12deg)}
+  18%{opacity:1}
+  68%{opacity:1;transform:translate(70px,-155px) scale(1.12) rotate(12deg)}
+  100%{opacity:0;transform:translate(12px,-255px) scale(.78)}
+}
+
+/* 75/100 – nền hồng tím + mưa cánh hoa + hoa nhún */
+.garden-celebration.level-75 .milestone-sky{
+  opacity:1!important;
+  background:
+    radial-gradient(circle at 24% 25%,rgba(255,175,218,.32),transparent 35%),
+    radial-gradient(circle at 76% 29%,rgba(207,173,255,.31),transparent 38%),
+    linear-gradient(180deg,rgba(255,211,235,.18),rgba(226,207,255,.20));
+  animation:v27RoseSky 6s ease both;
+}
+.garden-celebration.level-75 .milestone-main-icon{
+  font-size:clamp(55px,8vw,110px);
+  animation:v27PetalIcon 5.8s ease both!important;
+}
+body.party-75 .garden-wrap{
+  animation:v27RoseGarden 1.05s ease-in-out 5 alternate!important;
+}
+body.party-75 .flower-shell{
+  animation:v27GentleFlower .70s ease-in-out 7 alternate!important;
+}
+body.party-75 .student-plot:nth-child(2n) .flower-shell{animation-delay:.07s!important}
+body.party-75 .student-plot:nth-child(3n) .flower-shell{animation-delay:.14s!important}
+@keyframes v27RoseSky{0%,100%{opacity:0}10%,82%{opacity:1}}
+@keyframes v27RoseGarden{
+  to{box-shadow:0 0 65px rgba(255,159,209,.31),0 0 95px rgba(184,146,255,.24)}
+}
+@keyframes v27GentleFlower{
+  to{transform:translateY(-5px) scale(1.045) rotate(1.5deg);filter:saturate(1.15) brightness(1.04)}
+}
+@keyframes v27PetalIcon{
+  0%{opacity:0;transform:translateX(-50%) scale(.45)}
+  18%,76%{opacity:1;transform:translateX(-50%) scale(1)}
+  100%{opacity:0;transform:translateX(-50%) translateY(-15px) scale(1.05)}
+}
+.falling-petal{
+  position:absolute;
+  top:-55px;
+  z-index:13;
+  font-size:clamp(18px,2.3vw,34px);
+  animation:petalFall linear forwards;
+}
+
+/* 100/100 – cầu vồng + vàng rực + toàn bộ 40 hoa nở/nhún */
+.garden-celebration.level-100 .milestone-sky{
+  opacity:1!important;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(255,242,129,.49),transparent 45%),
+    linear-gradient(180deg,rgba(255,231,115,.30),rgba(255,248,193,.13));
+  animation:v27GrandSky 7s ease both;
+}
+.garden-celebration.level-100 .milestone-main-icon{
+  top:4%!important;
+  font-size:clamp(115px,18vw,245px);
+  animation:v27Rainbow 6.8s ease both!important;
+}
+body.party-100 .garden-wrap{
+  animation:v27GoldenGarden .95s ease-in-out 7 alternate!important;
+}
+body.party-100 .student-plot .flower-shell{
+  animation:v27AllBloom .65s cubic-bezier(.2,.8,.25,1) 9 alternate!important;
+}
+body.party-100 .student-plot:nth-child(2n) .flower-shell{animation-delay:.05s!important}
+body.party-100 .student-plot:nth-child(3n) .flower-shell{animation-delay:.10s!important}
+body.party-100 .student-plot:nth-child(5n) .flower-shell{animation-delay:.15s!important}
+body.party-100 .flower-head{
+  filter:saturate(1.25) brightness(1.08);
+}
+@keyframes v27GrandSky{0%,100%{opacity:0}10%,84%{opacity:1}}
+@keyframes v27Rainbow{
+  0%{opacity:0;transform:translateX(-50%) translateY(-28px) scale(.20)}
+  18%{opacity:1;transform:translateX(-50%) scale(1.08)}
+  28%,78%{opacity:1;transform:translateX(-50%) scale(1)}
+  100%{opacity:0;transform:translateX(-50%) translateY(-10px) scale(1.12)}
+}
+@keyframes v27GoldenGarden{
+  to{
+    filter:brightness(1.07) saturate(1.12);
+    box-shadow:0 0 74px rgba(255,208,56,.59),0 0 112px rgba(255,235,140,.38)
+  }
+}
+@keyframes v27AllBloom{
+  to{
+    transform:translateY(-9px) scale(1.10) rotate(1.6deg);
+    filter:saturate(1.30) brightness(1.10)
+  }
+}

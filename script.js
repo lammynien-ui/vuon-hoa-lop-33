@@ -58,21 +58,15 @@ let isTeacher = false;
 let selectedStudentId = null;
 let selectedReason = reasons[0][1];
 let soundOn = true;
-let soundEffectsOn = localStorage.getItem("vuonhoa33_fx") !== "off";
-let musicPlaying = false;
-let musicCtx = null;
+const soundEffectsOn = true;
 let fxCtx = null;
-let usingFallbackMusic = false;
+let milestoneTimer = null;
+let lastSeenMilestoneEventId = null;
+let cloudMilestoneReady = false;
+let pendingMilestoneEvent = null;
 
 const customMusic = document.getElementById("customMusic");
-const SHARED_MUSIC_PATH = "music/music.mp3";
-const FALLBACK_MUSIC_PATH = "music/default-garden.wav";
-
-if(customMusic){
-  customMusic.volume = 0.34;
-  customMusic.src = SHARED_MUSIC_PATH;
-  customMusic.load();
-}
+let teacherMusicUrl = null;
 
 
 /* Firebase V14 */
@@ -105,7 +99,7 @@ document.getElementById("goalTarget").textContent = GOAL_TARGET;
 function loadState(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return {students:defaultStudents(), celebrations:0, lastMilestoneTotal:0};
+    if(!raw) return {students:defaultStudents(), celebrations:0, lastMilestoneTotal:0, lastMilestoneEvent:null};
     const parsed = JSON.parse(raw);
     if(!parsed.students || parsed.students.length !== 40) throw new Error("bad data");
     if(typeof parsed.celebrations!=="number") parsed.celebrations=0;
@@ -113,9 +107,10 @@ function loadState(){
       const currentTotal=parsed.students.reduce((s,x)=>s+Math.max(0,x.score),0);
       parsed.lastMilestoneTotal=Math.floor(currentTotal/25)*25;
     }
+    if(!("lastMilestoneEvent" in parsed)) parsed.lastMilestoneEvent=null;
     return parsed;
   }catch(e){
-    return {students:defaultStudents(), celebrations:0, lastMilestoneTotal:0};
+    return {students:defaultStudents(), celebrations:0, lastMilestoneTotal:0, lastMilestoneEvent:null};
   }
 }
 function saveState(){
@@ -133,6 +128,7 @@ function classMetaForCloud(){
   return {
     celebrations: Number(state.celebrations || 0),
     lastMilestoneTotal: Number(state.lastMilestoneTotal || 0),
+    lastMilestoneEvent: state.lastMilestoneEvent || null,
     updatedAtClient: new Date().toISOString()
   };
 }
@@ -390,8 +386,7 @@ function renderGoal(){
 
   document.getElementById("celebrationCount").textContent = state.celebrations || 0;
 
-  // Mỗi 25 giọt có một hiệu ứng khác nhau.
-  // Chỉ chạy khi người dùng thực sự vừa vượt qua mốc mới.
+  // 25 / 50 / 75 / 100 giọt.
   const milestoneTotal = Math.floor(total / 25) * 25;
 
   if(milestoneTotal > 0 && milestoneTotal > (state.lastMilestoneTotal || 0)){
@@ -401,14 +396,242 @@ function renderGoal(){
     const level = inBottle === 0 ? 100 : inBottle;
 
     if(level === 100){
-      state.celebrations = Math.max(state.celebrations || 0, Math.floor(milestoneTotal / GOAL_TARGET));
+      state.celebrations = Math.max(
+        Number(state.celebrations || 0),
+        Math.floor(milestoneTotal / GOAL_TARGET)
+      );
       document.getElementById("celebrationCount").textContent = state.celebrations;
     }
 
+    const event = {
+      id: `${milestoneTotal}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+      total: milestoneTotal,
+      level,
+      celebrations: Number(state.celebrations || 0),
+      at: Date.now()
+    };
+
+    state.lastMilestoneEvent = event;
+
+    // Máy vừa tạo mốc tự chạy ngay; snapshot Firestore sau đó sẽ không chạy lặp.
+    lastSeenMilestoneEventId = event.id;
+
     saveState();
-    setTimeout(()=>triggerGardenMilestone(level, state.celebrations || 0),220);
+    setTimeout(()=>triggerGardenMilestone(level,event.celebrations),180);
   }
 }
+
+
+/* =========================================================
+   V27 – HIỆU ỨNG BÌNH NƯỚC 25 / 50 / 75 / 100
+   ========================================================= */
+
+function unlockFxAudio(){
+  try{
+    const ctx=getFxContext();
+    if(ctx && ctx.state==="suspended") ctx.resume().catch(()=>{});
+  }catch(e){}
+}
+
+// Người dùng đã bấm vào trang/cổng lớp thì AudioContext được mở,
+// giúp âm thanh milestone hoạt động ổn định hơn sau đó.
+document.addEventListener("pointerdown",unlockFxAudio,{once:true,capture:true});
+document.addEventListener("keydown",unlockFxAudio,{once:true,capture:true});
+
+function playMilestoneSound(level){
+  try{
+    unlockFxAudio();
+
+    if(level===25){
+      // 2 nốt nhẹ.
+      playTone(659.25,.34,0,"sine",.030);
+      playTone(783.99,.40,.18,"triangle",.030);
+      return;
+    }
+
+    if(level===50){
+      // 3 nốt vui.
+      playTone(523.25,.26,0,"triangle",.030);
+      playTone(659.25,.28,.14,"sine",.032);
+      playTone(783.99,.36,.29,"triangle",.034);
+      return;
+    }
+
+    if(level===75){
+      // 4 nốt lung linh.
+      playTone(659.25,.25,0,"sine",.028);
+      playTone(783.99,.27,.12,"triangle",.030);
+      playTone(987.77,.30,.25,"sine",.032);
+      playTone(1174.66,.38,.39,"triangle",.032);
+      return;
+    }
+
+    if(level===100){
+      // Âm thanh chúc mừng riêng: arpeggio + hợp âm kết.
+      const seq=[
+        [523.25,0],[659.25,.11],[783.99,.22],
+        [1046.50,.34],[1318.51,.47],[1567.98,.60]
+      ];
+      seq.forEach(([f,d],i)=>playTone(f,.30,d,i%2?"triangle":"sine",.034));
+      playTone(1046.50,.62,.82,"sine",.027);
+      playTone(1318.51,.62,.82,"triangle",.024);
+      playTone(1567.98,.70,.82,"sine",.023);
+    }
+  }catch(e){
+    console.warn("Milestone sound:",e);
+  }
+}
+
+function clearGardenMilestone(){
+  if(milestoneTimer){
+    clearTimeout(milestoneTimer);
+    milestoneTimer=null;
+  }
+
+  const overlay=document.getElementById("gardenCelebration");
+  if(overlay){
+    overlay.classList.add("hidden");
+    overlay.classList.remove("level-25","level-50","level-75","level-100");
+    overlay.setAttribute("aria-hidden","true");
+  }
+
+  document.body.classList.remove("party-25","party-50","party-75","party-100");
+
+  const petalRain=document.getElementById("petalRain");
+  const friends=document.getElementById("flyingFriends");
+  if(petalRain) petalRain.innerHTML="";
+  if(friends) friends.innerHTML="";
+}
+
+function addMilestoneSparkles(count=20){
+  const host=document.getElementById("petalRain");
+  if(!host) return;
+
+  const icons=["✨","✦","⭐","✨"];
+  for(let i=0;i<count;i++){
+    const el=document.createElement("span");
+    el.className="milestone-sparkle";
+    el.textContent=icons[i%icons.length];
+    el.style.setProperty("--left",`${4+Math.random()*92}%`);
+    el.style.setProperty("--top",`${9+Math.random()*78}%`);
+    el.style.setProperty("--size",`${15+Math.random()*17}px`);
+    el.style.setProperty("--dur",`${2.6+Math.random()*2.0}s`);
+    el.style.animationDelay=`${Math.random()*.8}s`;
+    host.appendChild(el);
+  }
+}
+
+function addFlyingFriends(){
+  const host=document.getElementById("flyingFriends");
+  if(!host) return;
+
+  const friends=["🦋","🐝","🦋","🐝","🦋","🐝","🦋","🐝"];
+  friends.forEach((icon,i)=>{
+    const el=document.createElement("span");
+    el.className="flying-friend";
+    el.textContent=icon;
+    el.style.setProperty("--left",`${4+Math.random()*88}%`);
+    el.style.setProperty("--top",`${55+Math.random()*30}%`);
+    el.style.setProperty("--dur",`${4.0+Math.random()*1.6}s`);
+    el.style.animationDelay=`${i*.12}s`;
+    host.appendChild(el);
+  });
+}
+
+function addPetalRain(count=42){
+  const host=document.getElementById("petalRain");
+  if(!host) return;
+
+  const petals=["🌸","🌼","🌺","🌸","🌷"];
+  for(let i=0;i<count;i++){
+    const el=document.createElement("span");
+    el.className="falling-petal";
+    el.textContent=petals[i%petals.length];
+    el.style.left=`${Math.random()*100}%`;
+    el.style.setProperty("--drift",`${-70+Math.random()*140}px`);
+    el.style.animationDuration=`${3.2+Math.random()*2.8}s`;
+    el.style.animationDelay=`${Math.random()*1.7}s`;
+    host.appendChild(el);
+  }
+}
+
+function triggerGardenMilestone(level,celebrationCount=0){
+  if(![25,50,75,100].includes(Number(level))) return;
+
+  clearGardenMilestone();
+
+  const overlay=document.getElementById("gardenCelebration");
+  const icon=document.getElementById("milestoneMainIcon");
+  const big=document.getElementById("celebrateBig");
+  const small=document.getElementById("celebrateSmall");
+
+  if(!overlay) return;
+
+  const n=Number(level);
+  overlay.classList.remove("hidden");
+  overlay.classList.add(`level-${n}`);
+  overlay.setAttribute("aria-hidden","false");
+  document.body.classList.add(`party-${n}`);
+
+  if(big) big.textContent="";
+  if(small) small.textContent="";
+
+  if(n===25){
+    if(icon) icon.textContent="☀️";
+    addMilestoneSparkles(24);
+  }
+
+  if(n===50){
+    if(icon) icon.textContent="🦋 🐝";
+    addMilestoneSparkles(12);
+    addFlyingFriends();
+  }
+
+  if(n===75){
+    if(icon) icon.textContent="🌸🌼🌺";
+    addPetalRain(46);
+  }
+
+  if(n===100){
+    if(icon) icon.textContent="🌈";
+    addMilestoneSparkles(28);
+    addPetalRain(26);
+
+    if(big) big.textContent="🌸 CẢ KHU VƯỜN CÙNG NỞ RỘ! 🌸";
+    if(small){
+      small.textContent=`Cả lớp đã cùng nhau làm đầy Bình nước lần thứ ${celebrationCount}!`;
+    }
+  }
+
+  playMilestoneSound(n);
+
+  const durations={25:4800,50:5400,75:6000,100:7000};
+  milestoneTimer=setTimeout(clearGardenMilestone,durations[n]);
+}
+
+function receiveCloudMilestoneEvent(event){
+  if(!event || !event.id || ![25,50,75,100].includes(Number(event.level))) return;
+
+  if(!cloudMilestoneReady){
+    cloudMilestoneReady=true;
+    lastSeenMilestoneEventId=event.id;
+    return;
+  }
+
+  if(event.id===lastSeenMilestoneEventId) return;
+  lastSeenMilestoneEventId=event.id;
+
+  if(document.body.classList.contains("gate-locked")){
+    pendingMilestoneEvent=event;
+    return;
+  }
+
+  setTimeout(
+    ()=>triggerGardenMilestone(Number(event.level),Number(event.celebrations||0)),
+    180
+  );
+}
+
 function openStudent(id){
   selectedStudentId=id;
   const st = getSelected();
@@ -834,7 +1057,7 @@ document.getElementById("resetAllBtn").addEventListener("click",()=>{
 });
 document.getElementById("cancelResetBtn").addEventListener("click",()=>closeModal("confirmModal"));
 document.getElementById("confirmResetBtn").addEventListener("click",()=>{
-  state={students:defaultStudents(), celebrations:0, lastMilestoneTotal:0};saveState();renderGarden();closeModal("confirmModal");toast("Đã tạo lại khu vườn mới.");
+  state={students:defaultStudents(), celebrations:0, lastMilestoneTotal:0, lastMilestoneEvent:null};saveState();renderGarden();closeModal("confirmModal");toast("Đã tạo lại khu vườn mới.");
 });
 
 /* =========================================================
@@ -842,11 +1065,6 @@ document.getElementById("confirmResetBtn").addEventListener("click",()=>{
    - Nhạc nền: ưu tiên music/music.mp3, tự fallback sang default-garden.wav.
    - Hiệu ứng điểm: Web Audio độc lập với nhạc nền.
    ========================================================= */
-
-function updateEffectsButton(){
-  const btn=document.getElementById("effectsBtn");
-  if(btn) btn.textContent=soundEffectsOn ? "🔊 Hiệu ứng: Bật" : "🔇 Hiệu ứng: Tắt";
-}
 
 function getFxContext(){
   const Ctx=window.AudioContext || window.webkitAudioContext;
@@ -958,147 +1176,95 @@ function animateWater(studentId,delta){
   setTimeout(()=>layer.remove(),1250);
 }
 
-function switchToFallbackMusic(){
-  if(!customMusic || usingFallbackMusic || customMusic.dataset.objectUrl) return;
-  usingFallbackMusic=true;
-  customMusic.src=FALLBACK_MUSIC_PATH;
-  customMusic.load();
-  const btn=document.getElementById("soundBtn");
-  if(btn) btn.textContent="🎵 Phát nhạc";
+/* =========================================================
+   V26 FINAL – NHẠC CHỈ TRÊN MÁY GIÁO VIÊN
+   Dùng trình phát audio native của trình duyệt.
+   ========================================================= */
+
+function clearTeacherMusicUrl(){
+  if(teacherMusicUrl){
+    try{ URL.revokeObjectURL(teacherMusicUrl); }catch(e){}
+    teacherMusicUrl=null;
+  }
 }
 
-customMusic?.addEventListener("error",()=>{
-  if(!usingFallbackMusic && !customMusic.dataset.objectUrl){
-    switchToFallbackMusic();
-  }else{
-    const btn=document.getElementById("soundBtn");
-    if(btn) btn.textContent="🎵 Nhạc chưa sẵn sàng";
+function resetTeacherMusicPlayer(){
+  if(customMusic){
+    customMusic.pause();
+    customMusic.removeAttribute("src");
+    customMusic.load();
+    customMusic.classList.add("hidden");
   }
-});
 
-customMusic?.addEventListener("canplay",()=>{
-  const btn=document.getElementById("soundBtn");
-  if(btn && customMusic.paused){
-    btn.textContent="🎵 Phát nhạc";
-  }
-});
+  clearTeacherMusicUrl();
 
-document.getElementById("effectsBtn")?.addEventListener("click",()=>{
-  soundEffectsOn=!soundEffectsOn;
-  localStorage.setItem("vuonhoa33_fx",soundEffectsOn?"on":"off");
-  updateEffectsButton();
-  if(soundEffectsOn){
-    playWaterDrop(0);
-    playPositiveChime(0.08);
-    toast("Đã bật âm thanh hiệu ứng.");
-  }else{
-    toast("Đã tắt âm thanh hiệu ứng.");
-  }
-});
+  document.getElementById("teacherMusicEmpty")?.classList.remove("hidden");
+  document.getElementById("teacherMusicNow")?.classList.add("hidden");
 
-document.getElementById("soundBtn").addEventListener("click", async ()=>{
-  if(!customMusic) return;
+  const name=document.getElementById("teacherMusicName");
+  if(name) name.textContent="Bài nhạc";
+}
 
-  try{
-    // Thao tác click của người dùng cho phép trình duyệt phát audio.
-    if(customMusic.paused){
-      await customMusic.play();
-      musicPlaying=true;
-      document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
-      toast(usingFallbackMusic ? "Đang phát nhạc khu vườn dự phòng." : "Đang phát nhạc nền của lớp.");
-    }else{
-      customMusic.pause();
-      musicPlaying=false;
-      document.getElementById("soundBtn").textContent="🎵 Phát nhạc";
-    }
-  }catch(e){
-    console.error("Background music:",e);
+document.getElementById("musicInput")?.addEventListener("change", e=>{
+  if(!isTeacher) return;
 
-    // Nếu file MP3 của lớp lỗi/chưa có thì chuyển ngay sang bản dự phòng.
-    if(!usingFallbackMusic && !customMusic.dataset.objectUrl){
-      switchToFallbackMusic();
-      try{
-        await customMusic.play();
-        musicPlaying=true;
-        document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
-        toast("File nhạc của lớp chưa đọc được nên đang phát nhạc khu vườn dự phòng.");
-        return;
-      }catch(e2){
-        console.error("Fallback music:",e2);
-      }
-    }
-
-    toast("Trình duyệt chưa cho phép phát nhạc. Hãy bấm lại nút Phát nhạc.");
-  }
-});
-
-// Chọn nhạc chỉ để nghe thử trên thiết bị giáo viên.
-// Muốn PH/HS cùng nghe, upload bài hát với tên music/music.mp3 lên GitHub.
-document.getElementById("musicInput").addEventListener("change", async e=>{
   const file=e.target.files?.[0];
+  e.target.value="";
   if(!file) return;
 
-  if(!file.type.startsWith("audio/")){
-    toast("Vui lòng chọn file âm thanh.");
+  const fileName=(file.name||"").toLowerCase();
+  const supported =
+    (file.type && file.type.startsWith("audio/")) ||
+    /\.(mp3|wav|m4a|aac|ogg|webm)$/i.test(fileName);
+
+  if(!supported){
+    toast("Vui lòng chọn file nhạc MP3 hoặc định dạng âm thanh thông dụng.");
     return;
   }
 
   try{
-    setMusicFile(file);
-    await customMusic.play();
-    musicPlaying=true;
-    document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
-    toast("Đang nghe thử bài nhạc trên thiết bị này.");
+    if(!customMusic) throw new Error("Không tìm thấy trình phát nhạc.");
+
+    customMusic.pause();
+    clearTeacherMusicUrl();
+
+    teacherMusicUrl=URL.createObjectURL(file);
+    customMusic.src=teacherMusicUrl;
+    customMusic.loop=true;
+    customMusic.volume=0.65;
+    customMusic.classList.remove("hidden");
+    customMusic.load();
+
+    document.getElementById("teacherMusicEmpty")?.classList.add("hidden");
+    document.getElementById("teacherMusicNow")?.classList.remove("hidden");
+
+    const name=document.getElementById("teacherMusicName");
+    if(name) name.textContent=file.name;
+
+    customMusic.play()
+      .then(()=>toast("Đang phát nhạc trên máy giáo viên."))
+      .catch(err=>{
+        console.warn("Audio play after file pick:",err);
+        toast("Đã tải bài nhạc. Cô bấm nút ▶ trên thanh phát nhạc để nghe.");
+      });
+
   }catch(err){
-    console.error(err);
-    toast("Không thể mở bài nhạc này.");
-  }finally{
-    e.target.value="";
+    console.error("Teacher local audio:",err);
+    resetTeacherMusicPlayer();
+    toast("Không mở được file nhạc này.");
   }
 });
 
-function setMusicFile(file){
-  if(customMusic.dataset.objectUrl){
-    URL.revokeObjectURL(customMusic.dataset.objectUrl);
-  }
-  const url=URL.createObjectURL(file);
-  customMusic.src=url;
-  customMusic.dataset.objectUrl=url;
-  usingFallbackMusic=false;
-  customMusic.load();
-  document.getElementById("soundBtn").textContent="🎵 Phát nhạc";
-}
+document.getElementById("teacherMusicRemove")?.addEventListener("click",()=>{
+  if(!isTeacher) return;
+  resetTeacherMusicPlayer();
+  toast("Đã bỏ bài nhạc khỏi phiên làm việc.");
+});
 
-updateEffectsButton();
-
-function openMusicDB(){
-  return new Promise((resolve,reject)=>{
-    const req = indexedDB.open("vuonhoa33_music_db",1);
-    req.onupgradeneeded = ()=>{
-      const db=req.result;
-      if(!db.objectStoreNames.contains("music")){
-        db.createObjectStore("music");
-      }
-    };
-    req.onsuccess=()=>resolve(req.result);
-    req.onerror=()=>reject(req.error);
-  });
-}
-
-async function saveMusicToDB(file){
-  const db=await openMusicDB();
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction("music","readwrite");
-    tx.objectStore("music").put(file,"backgroundMusic");
-    tx.oncomplete=()=>resolve();
-    tx.onerror=()=>reject(tx.error);
-  });
-}
-
-async function loadMusicFromDB(){
-  // V16: nhạc dùng chung được đọc từ music/music.mp3.
-  return;
-}
+customMusic?.addEventListener("error",()=>{
+  console.warn("Native audio error:",customMusic.error);
+  toast("Trình duyệt không đọc được file nhạc này. Hãy thử một file MP3 khác.");
+});
 
 /* =========================================================
    CHATBOT VƯỜN HOA 3.3
@@ -1496,9 +1662,64 @@ async function sha256Hex(text){
     return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,"0")).join("");
   }
 
-  // Fallback only for older/file browsers: simple comparison cannot verify custom hash.
-  // We deliberately do not keep a plaintext access code in the source.
-  throw new Error("Trình duyệt này không hỗ trợ xác minh mã an toàn.");
+  // Pure-JS fallback SHA-256 để Cổng lớp vẫn hoạt động nếu WebCrypto bị chặn.
+  function rightRotate(value,amount){return (value>>>amount)|(value<<(32-amount));}
+  const maxWord=Math.pow(2,32);
+  let result="";
+  const words=[];
+  const ascii=unescape(encodeURIComponent(String(text)));
+  const asciiBitLength=ascii.length*8;
+  let hash=sha256Hex.h=sha256Hex.h||[];
+  let k=sha256Hex.k=sha256Hex.k||[];
+  let primeCounter=k.length;
+  const isComposite={};
+  for(let candidate=2; primeCounter<64; candidate++){
+    if(!isComposite[candidate]){
+      for(let i=0;i<313;i+=candidate) isComposite[i]=candidate;
+      hash[primeCounter]=(Math.pow(candidate,.5)*maxWord)|0;
+      k[primeCounter++]=(Math.pow(candidate,1/3)*maxWord)|0;
+    }
+  }
+  let msg=ascii+"\x80";
+  while(msg.length%64-56) msg+="\x00";
+  for(let i=0;i<msg.length;i++){
+    const j=msg.charCodeAt(i);
+    words[i>>2]|=j<<((3-i)%4)*8;
+  }
+  words[words.length]=((asciiBitLength/maxWord)|0);
+  words[words.length]=asciiBitLength;
+  for(let j=0;j<words.length;){
+    const w=words.slice(j,j+=16);
+    const oldHash=hash.slice(0);
+    hash=hash.slice(0,8);
+    for(let i=0;i<64;i++){
+      const w15=w[i-15],w2=w[i-2];
+      const a=hash[0],e=hash[4];
+      const temp1=hash[7]
+        +(rightRotate(e,6)^rightRotate(e,11)^rightRotate(e,25))
+        +((e&hash[5])^((~e)&hash[6]))
+        +k[i]
+        +(w[i]=(i<16)?w[i]:(
+          w[i-16]
+          +(rightRotate(w15,7)^rightRotate(w15,18)^(w15>>>3))
+          +w[i-7]
+          +(rightRotate(w2,17)^rightRotate(w2,19)^(w2>>>10))
+        )|0);
+      const temp2=(rightRotate(a,2)^rightRotate(a,13)^rightRotate(a,22))
+        +((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+      hash=[(temp1+temp2)|0].concat(hash);
+      hash[4]=(hash[4]+temp1)|0;
+      hash.pop();
+    }
+    for(let i=0;i<8;i++) hash[i]=(hash[i]+oldHash[i])|0;
+  }
+  for(let i=0;i<8;i++){
+    for(let j=3;j+1;j--){
+      const b=(hash[i]>>(j*8))&255;
+      result+=(b<16?"0":"")+b.toString(16);
+    }
+  }
+  return result;
 }
 
 function gateSessionIsOpen(){
@@ -1523,6 +1744,17 @@ function unlockClassGate(){
   gate.classList.add("hidden");
   document.body.classList.remove("gate-locked");
   document.getElementById("classGateError").textContent="";
+
+  unlockFxAudio();
+
+  if(pendingMilestoneEvent){
+    const event=pendingMilestoneEvent;
+    pendingMilestoneEvent=null;
+    setTimeout(
+      ()=>triggerGardenMilestone(Number(event.level),Number(event.celebrations||0)),
+      250
+    );
+  }
 }
 
 async function verifyClassGate(){
@@ -1530,6 +1762,8 @@ async function verifyClassGate(){
   const error=document.getElementById("classGateError");
   const card=document.querySelector(".class-gate-card");
   if(!input || !error) return;
+
+  error.textContent="";
 
   const now=Date.now();
   if(now < classGateLockedUntil){
@@ -1635,6 +1869,7 @@ async function initFirebaseSync(){
 
     firebaseAuth.onAuthStateChanged(user=>{
       isTeacher=!!user;
+      if(!user && customMusic && !customMusic.paused) customMusic.pause();
       refreshAdminVisibility();
       setSyncStatus(
         "cloud",
@@ -1649,6 +1884,11 @@ async function initFirebaseSync(){
       const remote=snap.data() || {};
       state.celebrations=Number(remote.celebrations||0);
       state.lastMilestoneTotal=Number(remote.lastMilestoneTotal||0);
+      state.lastMilestoneEvent=remote.lastMilestoneEvent || state.lastMilestoneEvent || null;
+
+      const cloudEvent=remote.lastMilestoneEvent || null;
+      receiveCloudMilestoneEvent(cloudEvent);
+
       lastCloudMetaSerialized=JSON.stringify(classMetaForCloud());
 
       try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
@@ -2029,11 +2269,28 @@ function applyWeatherMode(mode, announce=true){
   }
 }
 
-renderGarden();
-refreshAdminVisibility();
-loadMusicFromDB();
-initWeatherSystem();
-initDailyFairyMessage();
-initFirebaseSync();
-initClassGate();
-startSceneCycle();
+// =========================================================
+// V22 – KHỞI TẠO AN TOÀN
+// Cổng Mã lớp phải hoạt động độc lập với mọi module khác.
+// =========================================================
+function safeInit(label, fn){
+  try{
+    const result=fn();
+    if(result && typeof result.catch==="function"){
+      result.catch(err=>console.error(`[V22] ${label}:`,err));
+    }
+  }catch(err){
+    console.error(`[V22] ${label}:`,err);
+  }
+}
+
+// Khởi tạo Cổng lớp ĐẦU TIÊN.
+// Vì vậy lỗi nhạc, Firebase, thời tiết... không thể làm nút Vào khu vườn bị đơ.
+safeInit("Class Gate", initClassGate);
+
+safeInit("Garden render", renderGarden);
+safeInit("Admin visibility", refreshAdminVisibility);
+safeInit("Weather", initWeatherSystem);
+safeInit("Daily fairy", initDailyFairyMessage);
+safeInit("Firebase", initFirebaseSync);
+safeInit("Scene cycle", startSceneCycle);
