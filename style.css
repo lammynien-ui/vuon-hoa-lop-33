@@ -1,0 +1,2432 @@
+* { box-sizing: border-box; }
+
+:root{
+  --ink:#38503f;
+  --green:#5b8f64;
+  --green2:#79b57e;
+  --cream:#fffdf4;
+  --pink:#ffdce8;
+  --blue:#dff4ff;
+  --shadow:0 14px 35px rgba(65, 97, 74,.16);
+}
+
+html,body{margin:0;min-height:100%;font-family:"Nunito",sans-serif;color:var(--ink);background:linear-gradient(#dff6ff 0%,#edfaff 42%,#f6fff0 68%,#d9efbe 100%);}
+body{overflow-x:hidden;}
+button,input,textarea{font:inherit;}
+button{cursor:pointer;}
+.hidden{display:none!important;}
+
+.sky-decor{position:fixed;border-radius:50%;filter:blur(55px);opacity:.45;pointer-events:none;z-index:0}
+.sky-1{width:360px;height:360px;left:-120px;top:-80px;background:#ffe5a7}
+.sky-2{width:420px;height:420px;right:-160px;top:40px;background:#d7d2ff}
+
+.hero{position:relative;z-index:2;display:flex;gap:24px;align-items:center;justify-content:space-between;padding:28px 5vw 18px;}
+.hero h1{font-family:"Baloo 2",sans-serif;font-size:clamp(34px,5vw,62px);line-height:1;margin:5px 0;color:#3f7b4d;text-shadow:0 3px 0 #fff;}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.08em;opacity:.72;margin:0}
+.subtitle{font-size:clamp(15px,2vw,20px);font-weight:700;margin:10px 0 0}
+
+.class-goal{min-width:280px;background:rgba(255,255,255,.82);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.85);border-radius:24px;padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow)}
+.sun{font-size:44px;animation:sunPulse 2.8s ease-in-out infinite}
+.goal-bar{width:190px;height:13px;background:#e7eddc;border-radius:99px;overflow:hidden;margin:6px 0}
+.goal-bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#f5c95e,#80c975);transition:width .5s ease}
+@keyframes sunPulse{50%{transform:scale(1.08) rotate(5deg)}}
+
+main{position:relative;z-index:1}
+.toolbar{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:0 4vw 16px}
+.tool-btn,.upload-btn,.secondary-btn,.primary-btn,.danger-btn{border:0;border-radius:15px;padding:10px 14px;font-weight:800;box-shadow:0 5px 14px rgba(57,78,62,.12);transition:.2s}
+.tool-btn{background:#fff}
+.tool-btn:hover,.secondary-btn:hover,.primary-btn:hover,.danger-btn:hover,.upload-btn:hover{transform:translateY(-2px)}
+.tool-btn.teacher{background:#fff2bd}
+.tool-btn.danger{background:#ffe0df;color:#9e3737}
+
+.garden-wrap{position:relative;width:min(1500px,96vw);margin:0 auto 28px;min-height:760px;border-radius:40px;overflow:hidden;background:
+ radial-gradient(circle at 20% 12%,rgba(255,255,255,.9) 0 5%,transparent 6%),
+ linear-gradient(#dff6ff 0%,#effcff 46%,#eef9d7 70%,#c7e29e 100%);
+box-shadow:var(--shadow);border:2px solid rgba(255,255,255,.85)}
+.garden{position:relative;z-index:3;display:grid;grid-template-columns:repeat(8,minmax(105px,1fr));gap:18px 12px;padding:58px 24px 120px;min-height:760px}
+.ground{position:absolute;left:0;right:0;bottom:-28px;height:150px;background:radial-gradient(ellipse at center,#7fba67 0%,#5c9b53 75%);opacity:.5}
+.cloud{position:absolute;font-size:90px;opacity:.75;filter:drop-shadow(0 10px 10px rgba(55,90,105,.08));z-index:1}
+.cloud-a{left:4%;top:3%;animation:cloudMove 22s linear infinite alternate}
+.cloud-b{right:5%;top:10%;animation:cloudMove 28s linear infinite alternate-reverse}
+@keyframes cloudMove{to{transform:translateX(80px)}}
+.butterfly{position:absolute;z-index:4;font-size:28px;animation:fly 8s ease-in-out infinite}
+.b1{left:15%;top:30%}.b2{right:16%;top:48%;animation-delay:-3s}
+@keyframes fly{0%,100%{transform:translate(0,0) rotate(-8deg)}50%{transform:translate(60px,-35px) rotate(10deg)}}
+
+.student-plot{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:128px;cursor:pointer;transition:transform .25s ease;outline:none}
+.student-plot:hover,.student-plot:focus{transform:translateY(-4px)}
+.student-name{margin-top:3px;background:rgba(255,255,255,.82);padding:4px 8px;border-radius:12px;font-size:12px;font-weight:800;text-align:center;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 8px rgba(65,97,74,.12)}
+.flower-shell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;transition:filter .4s,transform .4s;transform-origin:bottom center;animation:sway 3.5s ease-in-out infinite alternate}
+.student-plot:nth-child(3n) .flower-shell{animation-delay:-1s}.student-plot:nth-child(4n) .flower-shell{animation-delay:-2s}
+@keyframes sway{to{transform:rotate(2deg)}}
+
+.flower-head{position:relative;border-radius:50%;display:grid;place-items:center;transition:all .45s ease;filter:drop-shadow(0 5px 6px rgba(56,76,61,.18));}
+.petal{position:absolute;width:48%;height:64%;border-radius:60% 60% 45% 45%;background:var(--petal);transform-origin:50% 100%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.24)}
+.center{position:absolute;width:40%;aspect-ratio:1;border-radius:50%;background:#f1c75d;border:3px solid rgba(255,255,255,.55);overflow:hidden;z-index:3;display:grid;place-items:center}
+.center img{width:100%;height:100%;object-fit:cover}
+.center .initials{font-size:10px;font-weight:900;color:#775c24}
+.stem{width:7px;height:42px;background:#5f9d56;border-radius:99px;position:relative}
+.leaf{position:absolute;width:24px;height:13px;background:#72b665;border-radius:80% 10% 80% 10%;top:16px}
+.leaf.left{right:3px;transform:rotate(25deg)} .leaf.right{left:3px;transform:scaleX(-1) rotate(25deg)}
+.sprout{font-size:42px;filter:drop-shadow(0 4px 4px rgba(50,80,50,.14))}
+.wilted{filter:saturate(.55) brightness(.9)}
+.wilted .flower-head{transform:rotate(9deg) translateY(4px)}
+.wilted::after{content:"🍂";position:absolute;font-size:17px;right:-9px;bottom:18px}
+.sparkle{position:absolute;right:-8px;top:-8px;font-size:18px;animation:spark 1.8s infinite}
+@keyframes spark{50%{transform:scale(1.3) rotate(18deg)}}
+.water-pop{position:absolute;font-size:26px;left:50%;top:-15px;transform:translateX(-50%);animation:water 1s ease forwards;pointer-events:none}
+@keyframes water{0%{opacity:0;transform:translate(-50%,-20px) scale(.6)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,22px) scale(1.2)}}
+
+.legend{display:flex;justify-content:center;flex-wrap:wrap;gap:12px 20px;padding:0 20px 35px;font-size:13px;font-weight:800}
+.legend div{background:rgba(255,255,255,.72);padding:7px 10px;border-radius:12px}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px}.stage1{background:#b7d890}.stage2{background:#80ba72}.stage3{background:#efd06a}.stage4{background:#eaa7c4}.stage5{background:#cf8fee}
+
+.modal{position:fixed;inset:0;z-index:50;background:rgba(33,54,41,.42);backdrop-filter:blur(6px);display:grid;place-items:center;padding:20px}
+.modal-card{position:relative;width:min(900px,96vw);max-height:92vh;overflow:auto;background:#fffdf8;border-radius:28px;padding:26px;box-shadow:0 24px 70px rgba(32,52,40,.3)}
+.student-card{display:grid;grid-template-columns:300px 1fr;gap:26px}
+.small-card{width:min(430px,94vw)}
+.close-btn{position:absolute;right:14px;top:12px;border:0;background:#f1f1eb;border-radius:50%;width:36px;height:36px;font-weight:900}
+.student-preview{display:grid;place-items:center;min-height:330px;border-radius:24px;background:linear-gradient(#eaf9ff,#f4ffe8)}
+.big-flower{transform:scale(2.2)}
+.name-row{display:flex;gap:10px;align-items:center;margin-right:40px}
+.name-input{font-family:"Baloo 2";font-size:27px;font-weight:700;width:100%;border:0;border-bottom:2px dashed #bcd2bd;background:transparent;color:#3f704a}
+.name-input:disabled{border-color:transparent}
+.stage-badge{white-space:nowrap;background:#eff6dc;padding:6px 9px;border-radius:10px;font-size:12px;font-weight:900}
+.student-message{background:#fff5c9;border-radius:16px;padding:12px 14px;font-weight:700;min-height:48px}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.stat-chip{background:#eef7f0;border-radius:12px;padding:7px 10px;font-size:13px;font-weight:800}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 16px}
+.badge{background:#f5eeff;border-radius:99px;padding:7px 10px;font-size:13px;font-weight:800}
+.photo-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.upload-btn{display:inline-block;background:#dff3ff}
+.secondary-btn{background:#edf2ea;color:#49624c}
+.primary-btn{background:#71b875;color:white}
+.danger-btn{background:#f4b8b4;color:#7d2f2f}
+.full{width:100%;margin-top:12px}
+.teacher-panel{margin-top:10px;border-top:2px dashed #d9e4d5;padding-top:15px}
+.teacher-panel h3{margin:0 0 10px}
+.reason-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.reason-btn{border:1px solid #dbe7d8;background:#fff;border-radius:12px;padding:7px 9px;font-size:12px;font-weight:800}
+.reason-btn.active{background:#e4f5df;border-color:#7fbd75}
+.score-actions{display:flex;flex-wrap:wrap;gap:8px}
+.note-box{margin-top:14px}
+.note-box label{display:block;font-weight:800;margin-bottom:6px}
+textarea{width:100%;border:1px solid #dce8da;border-radius:12px;padding:10px;resize:vertical}
+#pinInput{width:100%;padding:12px;border:1px solid #d7e3d4;border-radius:12px;font-size:18px;text-align:center}
+.hint{font-size:12px;opacity:.75}
+.confirm-actions{display:flex;justify-content:flex-end;gap:8px}
+
+.toast{position:fixed;left:50%;bottom:24px;z-index:99;transform:translate(-50%,20px);background:#334f3b;color:white;padding:10px 15px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;font-weight:800;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:1100px){
+  .garden{grid-template-columns:repeat(6,minmax(100px,1fr))}
+}
+@media (max-width:760px){
+  .hero{flex-direction:column;align-items:flex-start}
+  .class-goal{width:100%;min-width:0}
+  .goal-bar{width:min(55vw,260px)}
+  .garden{grid-template-columns:repeat(4,minmax(76px,1fr));gap:14px 5px;padding:50px 8px 90px}
+  .garden-wrap{min-height:980px;border-radius:26px}
+  .student-card{grid-template-columns:1fr}
+  .student-preview{min-height:240px}
+  .big-flower{transform:scale(1.7)}
+  .student-name{font-size:10px;max-width:86px}
+}
+@media (max-width:430px){
+  .garden{grid-template-columns:repeat(3,minmax(76px,1fr))}
+  .garden-wrap{min-height:1380px}
+  .hero{padding-top:20px}
+}
+
+
+/* ===== V3: Nhụy hoa là khung chân dung lớn ===== */
+.center{
+  width:58% !important;
+  border-width:4px !important;
+  background:#fff7cc !important;
+  box-shadow:0 3px 10px rgba(55,74,58,.22);
+}
+.center img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  transform:scale(1.08);
+}
+.center .initials{
+  font-size:11px !important;
+}
+.flower-head{
+  overflow:visible;
+}
+
+/* Khi mở hồ sơ, ảnh trong hoa lớn và rõ hơn */
+.big-flower .center{
+  width:62% !important;
+}
+.big-flower .center img{
+  transform:scale(1.12);
+}
+
+
+/* ===== V4: Bình nước tập thể ===== */
+.water-goal{
+  align-items:stretch;
+}
+.water-tank{
+  position:relative;
+  width:58px;
+  height:76px;
+  flex:0 0 58px;
+  align-self:center;
+  border:4px solid rgba(69,135,164,.42);
+  border-radius:18px 18px 22px 22px;
+  overflow:hidden;
+  background:rgba(255,255,255,.7);
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.65), 0 7px 15px rgba(64,110,126,.13);
+}
+.water-tank::before{
+  content:"";
+  position:absolute;
+  width:30px;
+  height:9px;
+  left:10px;
+  top:-6px;
+  border:4px solid rgba(69,135,164,.42);
+  border-bottom:0;
+  border-radius:9px 9px 0 0;
+  background:#f7fdff;
+  z-index:4;
+}
+.tank-water{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:0%;
+  background:linear-gradient(#6ed4ff,#3bbbe9);
+  transition:height .7s cubic-bezier(.2,.8,.2,1);
+}
+.tank-water::before{
+  content:"";
+  position:absolute;
+  left:-15%;
+  top:-7px;
+  width:130%;
+  height:14px;
+  border-radius:50%;
+  background:rgba(203,245,255,.8);
+  animation:waterWave 2s ease-in-out infinite alternate;
+}
+@keyframes waterWave{to{transform:translateX(8px) rotate(1deg)}}
+.tank-shine{
+  position:absolute;
+  left:10px;
+  top:12px;
+  width:9px;
+  height:34px;
+  background:rgba(255,255,255,.56);
+  border-radius:99px;
+  z-index:3;
+}
+.tank-icon{
+  position:absolute;
+  z-index:5;
+  inset:0;
+  display:grid;
+  place-items:center;
+  font-size:22px;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.08));
+}
+.water-goal-info{min-width:205px}
+
+/* ===== Celebration toàn khu vườn ===== */
+.garden-celebration{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  pointer-events:none;
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  background:radial-gradient(circle at center, rgba(255,255,255,.12), rgba(255,245,190,.18), rgba(170,240,255,.12));
+  animation:celebrationFade 7s ease both;
+}
+.garden-celebration.hidden{display:none!important}
+@keyframes celebrationFade{
+  0%{opacity:0}
+  8%,82%{opacity:1}
+  100%{opacity:0}
+}
+.rainbow-celebration{
+  position:absolute;
+  top:6%;
+  left:50%;
+  transform:translateX(-50%) scale(.5);
+  font-size:clamp(100px,18vw,260px);
+  filter:drop-shadow(0 10px 24px rgba(80,100,130,.18));
+  animation:rainbowPop 6.5s ease both;
+}
+@keyframes rainbowPop{
+  0%{opacity:0;transform:translateX(-50%) scale(.2) translateY(-30px)}
+  18%,75%{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}
+  100%{opacity:0;transform:translateX(-50%) scale(1.08) translateY(-10px)}
+}
+.celebration-title{
+  position:relative;
+  z-index:5;
+  text-align:center;
+  background:rgba(255,255,255,.88);
+  border:3px solid rgba(255,255,255,.95);
+  border-radius:28px;
+  padding:18px 28px;
+  box-shadow:0 20px 50px rgba(64,91,69,.2);
+  animation:titlePop 6.5s ease both;
+}
+.celebrate-big{
+  font-family:"Baloo 2",sans-serif;
+  font-size:clamp(26px,4vw,54px);
+  font-weight:800;
+  color:#4c8a58;
+}
+.celebrate-small{
+  font-weight:800;
+  margin-top:4px;
+  color:#66755f;
+}
+@keyframes titlePop{
+  0%{opacity:0;transform:scale(.4)}
+  15%{opacity:1;transform:scale(1.06)}
+  22%,76%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(.92)}
+}
+.petal-rain{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+.falling-petal{
+  position:absolute;
+  top:-50px;
+  font-size:clamp(18px,2.3vw,34px);
+  animation:petalFall linear forwards;
+}
+@keyframes petalFall{
+  0%{transform:translate3d(0,-10vh,0) rotate(0deg);opacity:0}
+  10%{opacity:1}
+  100%{transform:translate3d(var(--drift),110vh,0) rotate(720deg);opacity:.9}
+}
+.celebration-butterflies span{
+  position:absolute;
+  font-size:32px;
+  animation:celebrateFly 5.8s ease-in-out both;
+}
+.celebration-butterflies span:nth-child(1){left:6%;top:62%;animation-delay:.2s}
+.celebration-butterflies span:nth-child(2){right:7%;top:58%;animation-delay:.5s}
+.celebration-butterflies span:nth-child(3){left:22%;top:76%;animation-delay:.8s}
+.celebration-butterflies span:nth-child(4){right:23%;top:78%;animation-delay:1s}
+.celebration-butterflies span:nth-child(5){left:48%;top:84%;animation-delay:1.2s}
+@keyframes celebrateFly{
+  0%{opacity:0;transform:translateY(70px) scale(.5)}
+  25%{opacity:1}
+  70%{opacity:1;transform:translateY(-170px) translateX(40px) scale(1.15) rotate(10deg)}
+  100%{opacity:0;transform:translateY(-250px) translateX(-20px) scale(.85)}
+}
+
+/* Trong lúc ăn mừng, cả vườn sáng và hoa nhún nở */
+body.garden-party .garden-wrap{
+  animation:gardenGlow 1.1s ease-in-out 5 alternate;
+}
+body.garden-party .flower-shell{
+  animation:wholeGardenBloom .75s ease-in-out 7 alternate !important;
+}
+body.garden-party .student-plot:nth-child(2n) .flower-shell{animation-delay:.08s!important}
+body.garden-party .student-plot:nth-child(3n) .flower-shell{animation-delay:.16s!important}
+@keyframes gardenGlow{
+  to{box-shadow:0 0 50px rgba(255,218,93,.75), 0 0 95px rgba(101,215,255,.42)}
+}
+@keyframes wholeGardenBloom{
+  to{transform:translateY(-7px) scale(1.08) rotate(2deg);filter:saturate(1.25) brightness(1.07)}
+}
+
+
+/* ===== V5: Thông tin giáo viên & lời nhắn ===== */
+.teacher-name{
+  display:inline-block;
+  margin:8px 0 0;
+  padding:6px 11px;
+  border-radius:12px;
+  background:rgba(255,255,255,.72);
+  font-size:14px;
+  font-weight:800;
+  box-shadow:0 3px 10px rgba(62,91,70,.08);
+}
+.teacher-message-wrap{margin:10px 0 12px}
+.teacher-message-label{
+  display:inline-block;
+  margin:0 0 6px 5px;
+  font-size:13px;
+  font-weight:900;
+  color:#6b7e62;
+}
+.teacher-message-wrap .student-message{
+  margin-top:0;
+}
+
+/* ===== V5: Hệ thống hiệu ứng theo mốc 25/50/75/100 ===== */
+.garden-celebration{
+  background:transparent !important;
+  animation:none !important;
+}
+.milestone-sky{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transition:opacity .3s;
+}
+.milestone-main-icon{
+  position:absolute;
+  left:50%;
+  top:8%;
+  transform:translateX(-50%) scale(.4);
+  font-size:clamp(80px,15vw,210px);
+  opacity:0;
+  filter:drop-shadow(0 14px 30px rgba(66,80,65,.18));
+}
+.celebration-title{
+  animation:none !important;
+  opacity:0;
+}
+
+/* 25 giọt: Ánh nắng đầu tiên + đốm sáng */
+.garden-celebration.level-25 .milestone-sky{
+  opacity:1;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255,233,128,.58), transparent 28%),
+    radial-gradient(circle at 30% 52%, rgba(255,255,255,.35), transparent 23%);
+  animation:sunriseGlow 4.8s ease both;
+}
+.garden-celebration.level-25 .milestone-main-icon{
+  content:"";
+  opacity:1;
+  animation:iconSoftPop 4.6s ease both;
+}
+.garden-celebration.level-25 .celebration-title{
+  animation:softTitle 4.6s ease both !important;
+}
+body.party-25 .garden-wrap{
+  animation:warmGarden 1.1s ease-in-out 4 alternate;
+}
+body.party-25 .flower-shell{
+  filter:brightness(1.09) saturate(1.08);
+}
+@keyframes sunriseGlow{
+  0%,100%{opacity:0}
+  15%,75%{opacity:1}
+}
+@keyframes warmGarden{
+  to{box-shadow:0 0 45px rgba(255,219,99,.58), 0 14px 35px rgba(65,97,74,.16)}
+}
+
+/* Sparkles for 25 */
+.milestone-sparkle{
+  position:absolute;
+  top:var(--top);
+  left:var(--left);
+  font-size:var(--size);
+  animation:sparkleFloat var(--dur) ease-in-out both;
+}
+@keyframes sparkleFloat{
+  0%{opacity:0;transform:scale(.3) translateY(18px)}
+  25%,70%{opacity:1}
+  100%{opacity:0;transform:scale(1.25) translateY(-35px) rotate(40deg)}
+}
+
+/* 50 giọt: Bướm và ong bay lên + ánh sáng xanh */
+.garden-celebration.level-50 .milestone-sky{
+  opacity:1;
+  background:radial-gradient(circle at center,rgba(196,255,213,.30),rgba(206,244,255,.16),transparent 70%);
+  animation:midGlow 5.4s ease both;
+}
+.garden-celebration.level-50 .milestone-main-icon{
+  opacity:1;
+  animation:iconSoftPop 5.1s ease both;
+}
+.garden-celebration.level-50 .celebration-title{
+  animation:softTitle 5.1s ease both !important;
+}
+body.party-50 .garden-wrap{
+  animation:freshGarden 1s ease-in-out 5 alternate;
+}
+@keyframes midGlow{0%,100%{opacity:0}15%,78%{opacity:1}}
+@keyframes freshGarden{
+  to{box-shadow:0 0 50px rgba(111,226,182,.45),0 0 85px rgba(111,201,255,.27)}
+}
+
+/* 75 giọt: Mưa hoa */
+.garden-celebration.level-75 .milestone-sky{
+  opacity:1;
+  background:
+    radial-gradient(circle at 25% 25%,rgba(255,188,220,.23),transparent 30%),
+    radial-gradient(circle at 75% 32%,rgba(222,191,255,.23),transparent 30%);
+  animation:midGlow 6s ease both;
+}
+.garden-celebration.level-75 .milestone-main-icon{
+  opacity:1;
+  animation:iconSoftPop 5.8s ease both;
+}
+.garden-celebration.level-75 .celebration-title{
+  animation:softTitle 5.8s ease both !important;
+}
+body.party-75 .flower-shell{
+  animation:gentleBloom .75s ease-in-out 6 alternate !important;
+}
+@keyframes gentleBloom{
+  to{transform:translateY(-4px) scale(1.045) rotate(1.5deg);filter:saturate(1.14)}
+}
+
+/* 100 giọt: Cầu vồng + toàn vườn nở rộ + ánh sáng vàng */
+.garden-celebration.level-100 .milestone-sky{
+  opacity:1;
+  background:
+    radial-gradient(circle at center,rgba(255,246,184,.34),rgba(198,242,255,.18),transparent 72%);
+  animation:grandGlow 7s ease both;
+}
+.garden-celebration.level-100 .milestone-main-icon{
+  opacity:1;
+  animation:rainbowGrand 6.7s ease both;
+}
+.garden-celebration.level-100 .celebration-title{
+  animation:grandTitle 6.7s ease both !important;
+}
+body.party-100 .garden-wrap{
+  animation:gardenGlow 1.05s ease-in-out 6 alternate !important;
+}
+body.party-100 .flower-shell{
+  animation:wholeGardenBloom .72s ease-in-out 8 alternate !important;
+}
+@keyframes grandGlow{0%,100%{opacity:0}12%,82%{opacity:1}}
+@keyframes iconSoftPop{
+  0%{opacity:0;transform:translateX(-50%) scale(.25) translateY(-25px)}
+  18%,75%{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}
+  100%{opacity:0;transform:translateX(-50%) scale(1.05) translateY(-10px)}
+}
+@keyframes rainbowGrand{
+  0%{opacity:0;transform:translateX(-50%) scale(.2) translateY(-25px)}
+  18%{opacity:1;transform:translateX(-50%) scale(1.05)}
+  28%,78%{opacity:1;transform:translateX(-50%) scale(1)}
+  100%{opacity:0;transform:translateX(-50%) scale(1.12) translateY(-10px)}
+}
+@keyframes softTitle{
+  0%{opacity:0;transform:scale(.75) translateY(12px)}
+  18%,72%{opacity:1;transform:scale(1) translateY(0)}
+  100%{opacity:0;transform:scale(.94) translateY(-8px)}
+}
+@keyframes grandTitle{
+  0%{opacity:0;transform:scale(.45)}
+  15%{opacity:1;transform:scale(1.06)}
+  23%,78%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(.92)}
+}
+
+/* Flying friends generated dynamically */
+.flying-friend{
+  position:absolute;
+  font-size:clamp(26px,4vw,45px);
+  left:var(--left);
+  top:var(--top);
+  animation:friendFly var(--dur) ease-in-out both;
+}
+@keyframes friendFly{
+  0%{opacity:0;transform:translateY(70px) translateX(-20px) scale(.5) rotate(-12deg)}
+  18%{opacity:1}
+  70%{opacity:1;transform:translateY(-160px) translateX(70px) scale(1.1) rotate(12deg)}
+  100%{opacity:0;transform:translateY(-250px) translateX(10px) scale(.8)}
+}
+
+
+/* ===== V6: ảnh học sinh luôn nằm giữa nhụy, tên không bị hoa che ===== */
+.student-plot{
+  min-height: 170px !important;
+  justify-content: flex-start !important;
+  gap: 10px;
+  padding-top: 6px;
+}
+.flower-shell{
+  margin-bottom: 6px;
+}
+.flower-head{
+  position: relative !important;
+  display: block !important;
+}
+.center{
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 6 !important;
+  display: grid !important;
+  place-items: center !important;
+}
+.center img{
+  object-fit: cover !important;
+  object-position: center center !important;
+}
+.student-name{
+  position: relative !important;
+  z-index: 20 !important;
+  margin-top: 10px !important;
+  line-height: 1.2;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Khung modal cũng giữ ảnh đúng giữa nhụy */
+.big-flower .flower-head{
+  position: relative !important;
+}
+.big-flower .center{
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+
+/* ===== V6: Ảnh đúng giữa nhụy + tên không bị hoa che ===== */
+
+/* Mỗi ô học sinh có chiều cao rõ ràng để dành riêng vùng cho tên */
+.student-plot{
+  min-height:170px !important;
+  justify-content:flex-start !important;
+  padding-top:4px;
+  padding-bottom:8px;
+}
+
+/* Hoa chiếm vùng trên, tên nằm riêng bên dưới */
+.flower-shell{
+  min-height:118px;
+  justify-content:flex-end;
+  flex-shrink:0;
+}
+
+/* Tên học sinh luôn nằm ngoài bông hoa, không bị che */
+.student-name{
+  position:relative !important;
+  z-index:10 !important;
+  margin-top:10px !important;
+  min-height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 9px !important;
+  max-width:128px !important;
+  width:max-content;
+  background:rgba(255,255,255,.94) !important;
+  border:1px solid rgba(112,150,111,.16);
+  box-shadow:0 4px 12px rgba(65,97,74,.14) !important;
+  white-space:normal !important;
+  line-height:1.12;
+  overflow:visible !important;
+  text-overflow:clip !important;
+}
+
+/* Đầu hoa */
+.flower-head{
+  position:relative;
+  display:grid;
+  place-items:center;
+}
+
+/* Nhụy hoa trở thành khung ảnh chân dung lớn */
+.center{
+  position:absolute !important;
+  left:50% !important;
+  top:50% !important;
+  transform:translate(-50%,-50%) !important;
+  width:56% !important;
+  height:56% !important;
+  aspect-ratio:1 / 1 !important;
+  z-index:20 !important;
+  border-radius:50% !important;
+  overflow:hidden !important;
+  background:#fff !important;
+  border:4px solid rgba(255,255,255,.96) !important;
+  box-shadow:
+    0 3px 8px rgba(45,66,49,.22),
+    0 0 0 2px rgba(238,209,108,.5) !important;
+}
+
+/* Ảnh luôn phủ đầy nhụy, căn giữa gương mặt */
+.center img{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  object-position:center 38% !important;
+  transform:none !important;
+  border-radius:50% !important;
+}
+
+/* Chữ viết tắt nếu chưa tải ảnh */
+.center .initials{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  font-size:12px !important;
+}
+
+/* Giữ cánh hoa phía sau ảnh */
+.petal{
+  z-index:2 !important;
+}
+
+/* Cuống hoa phía dưới, không đè lên tên */
+.stem{
+  z-index:1;
+  margin-top:-2px;
+}
+
+/* Tăng khoảng cách lưới để tên không chạm hoa của bạn khác */
+.garden{
+  row-gap:28px !important;
+  column-gap:16px !important;
+  padding-bottom:135px !important;
+}
+
+/* Modal: ảnh ở giữa nhụy cũng rõ hơn */
+.big-flower .center{
+  width:58% !important;
+  height:58% !important;
+}
+
+/* Mobile */
+@media (max-width:760px){
+  .student-plot{
+    min-height:160px !important;
+  }
+  .flower-shell{
+    min-height:110px;
+  }
+  .student-name{
+    max-width:94px !important;
+    font-size:10.5px !important;
+    min-height:31px;
+  }
+  .garden{
+    row-gap:24px !important;
+    column-gap:8px !important;
+  }
+}
+
+
+/* ============================================================
+   V7 – TÂM HOA CHÍNH XÁC + NHIỀU KIỂU HOA
+   Tất cả cánh và nhụy dùng chung tâm 50% / 50%.
+   ============================================================ */
+
+.flower-shell{
+  transform:scale(var(--growth,1));
+  transform-origin:50% 100%;
+}
+
+.flower-head{
+  position:relative !important;
+  width:var(--head) !important;
+  height:var(--head) !important;
+  flex:0 0 var(--head);
+  display:block !important;
+  border-radius:50%;
+  overflow:visible !important;
+}
+
+/* Khung chứa cánh: tâm tuyệt đối chính giữa đầu hoa */
+.petal-field{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+}
+
+/* MỖI CÁNH đều lấy đúng tâm hoa làm gốc */
+.petal-field .petal{
+  position:absolute !important;
+  left:50% !important;
+  top:50% !important;
+  width:var(--pw) !important;
+  height:var(--ph) !important;
+  margin-left:calc(var(--pw) / -2) !important;
+  margin-top:calc(var(--ph) / -1) !important;
+  transform-origin:50% 100% !important;
+  transform:
+    rotate(var(--angle))
+    translateY(calc(var(--radius) * -1))
+    !important;
+  background:var(--petal) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.24),
+    0 3px 6px rgba(50,70,53,.09);
+  z-index:2 !important;
+}
+
+/* Nhụy/ảnh dùng CHÍNH XÁC cùng tâm 50%/50% */
+.flower-head > .center{
+  position:absolute !important;
+  left:50% !important;
+  top:50% !important;
+  transform:translate(-50%,-50%) !important;
+  width:50% !important;
+  height:50% !important;
+  min-width:40px;
+  min-height:40px;
+  aspect-ratio:1 / 1 !important;
+  border-radius:50% !important;
+  z-index:30 !important;
+  overflow:hidden !important;
+  background:#fff !important;
+  border:4px solid rgba(255,255,255,.98) !important;
+  box-shadow:
+    0 4px 10px rgba(40,58,44,.24),
+    0 0 0 2px rgba(223,195,87,.50) !important;
+}
+
+/* Ảnh phủ trọn nhụy và không tự scale lệch tâm */
+.flower-head > .center img{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important;
+  max-height:none !important;
+  object-fit:cover !important;
+  object-position:50% 38% !important;
+  transform:none !important;
+  border-radius:50% !important;
+}
+
+/* Chữ viết tắt */
+.flower-head > .center .initials{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  font-size:12px !important;
+  font-weight:900;
+}
+
+/* --------------------------
+   Các kiểu dáng cánh khác nhau
+   -------------------------- */
+.petal-oval{
+  border-radius:55% 55% 45% 45% !important;
+}
+.petal-long{
+  border-radius:65% 65% 32% 32% !important;
+}
+.petal-round{
+  border-radius:50% !important;
+}
+.petal-soft{
+  border-radius:58% 58% 48% 48% !important;
+}
+.petal-wide{
+  border-radius:62% 62% 52% 52% !important;
+}
+.petal-point{
+  border-radius:70% 18% 70% 18% !important;
+}
+.petal-heart{
+  border-radius:58% 58% 35% 35% !important;
+}
+
+/* Hoa hướng dương: nhụy vàng nâu, cánh dài */
+.flower-sunflower > .center{
+  box-shadow:
+    0 4px 10px rgba(40,58,44,.24),
+    0 0 0 3px rgba(226,173,62,.72) !important;
+}
+
+/* Hoa cúc: cánh hẹp, thoáng */
+.flower-daisy .petal{
+  filter:brightness(1.04);
+}
+
+/* Hoa 5 cánh: tâm lớn hơn */
+.flower-round5 > .center{
+  width:46% !important;
+  height:46% !important;
+}
+
+/* Hoa cosmos: cánh mềm và hơi lớn */
+.flower-cosmos > .center{
+  width:47% !important;
+  height:47% !important;
+}
+
+/* Hoa tầng: lớp cánh trong nhỏ hơn và sáng hơn */
+.flower-layered .layer-2{
+  filter:brightness(1.11);
+  z-index:3 !important;
+}
+
+/* Hoa lily/star: nhụy nhỏ hơn để thấy dáng cánh */
+.flower-lily > .center,
+.flower-star > .center{
+  width:44% !important;
+  height:44% !important;
+}
+
+/* Hoa mini: nhụy lớn hơn */
+.flower-mini > .center{
+  width:54% !important;
+  height:54% !important;
+}
+
+/* Cuống luôn nằm giữa bông */
+.flower-head + .stem{
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+/* Tên học sinh: tạo khoảng cách rõ hẳn khỏi bông hoa */
+.student-plot{
+  min-height:188px !important;
+}
+.flower-shell{
+  min-height:136px !important;
+}
+.student-name{
+  margin-top:13px !important;
+  z-index:50 !important;
+}
+
+/* Khoảng cách giữa các hoa để hoa lớn không chạm tên/bông bên cạnh */
+.garden{
+  row-gap:34px !important;
+  column-gap:22px !important;
+}
+
+@media (max-width:760px){
+  .student-plot{
+    min-height:174px !important;
+  }
+  .flower-shell{
+    min-height:126px !important;
+  }
+  .garden{
+    row-gap:29px !important;
+    column-gap:10px !important;
+  }
+}
+
+
+/* ============================================================
+   V8 – HOA GỌN GÀNG, ĐẸP HƠN, KHÔNG CHỒNG LÊN NHAU
+   ============================================================ */
+
+.garden{
+  grid-template-columns:repeat(5,minmax(140px,1fr)) !important;
+  row-gap:44px !important;
+  column-gap:18px !important;
+  padding:54px 20px 130px !important;
+}
+
+.student-plot{
+  min-height:205px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  padding:0 2px 10px !important;
+}
+
+.flower-shell{
+  min-height:122px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  transform:scale(var(--growth,1)) !important;
+  transform-origin:50% 100% !important;
+  transition:transform .35s ease, filter .35s ease !important;
+}
+
+.clean-flower{
+  position:relative !important;
+  width:var(--head) !important;
+  height:var(--head) !important;
+  margin:0 auto !important;
+  border-radius:50%;
+  overflow:visible !important;
+  filter:drop-shadow(0 4px 10px rgba(55,72,59,.12));
+}
+
+.clean-flower .petal-field{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+}
+
+.clean-flower .petal{
+  position:absolute !important;
+  left:50% !important;
+  top:50% !important;
+  width:var(--pw) !important;
+  height:var(--ph) !important;
+  margin-left:calc(var(--pw) / -2) !important;
+  margin-top:calc(var(--ph) / -1) !important;
+  transform-origin:50% 100% !important;
+  transform:rotate(var(--angle)) translateY(calc(var(--radius) * -1)) !important;
+  background:var(--petal) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(255,255,255,.2),
+    0 2px 4px rgba(64,90,73,.08);
+  z-index:2 !important;
+}
+
+/* Hình dạng cánh */
+.clean-flower .petal-narrow{ border-radius:60% 60% 35% 35% !important; }
+.clean-flower .petal-round { border-radius:50% !important; }
+.clean-flower .petal-soft  { border-radius:58% 58% 45% 45% !important; }
+.clean-flower .petal-point { border-radius:70% 24% 70% 24% !important; }
+.clean-flower .petal-wide  { border-radius:65% 65% 52% 52% !important; }
+.clean-flower .petal-lotus { border-radius:70% 70% 30% 30% !important; }
+
+/* Nhụy nằm đúng giữa */
+.clean-flower > .center{
+  position:absolute !important;
+  left:50% !important;
+  top:50% !important;
+  transform:translate(-50%,-50%) !important;
+  width:44% !important;
+  height:44% !important;
+  border-radius:50% !important;
+  overflow:hidden !important;
+  background:#fffef8 !important;
+  border:4px solid rgba(255,255,255,.96) !important;
+  z-index:30 !important;
+  box-shadow:
+    0 4px 10px rgba(44,61,50,.18),
+    0 0 0 2px rgba(214,183,82,.58) !important;
+}
+
+.clean-flower.stage-5 > .center{
+  box-shadow:
+    0 4px 10px rgba(44,61,50,.18),
+    0 0 0 2px rgba(214,183,82,.58),
+    0 0 18px rgba(255,235,136,.55) !important;
+}
+
+.clean-flower > .center img{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  object-position:50% 38% !important;
+  transform:none !important;
+  border-radius:50% !important;
+}
+
+.clean-flower > .center .initials{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  font-size:12px !important;
+  font-weight:900;
+  color:#8f6b2d;
+}
+
+/* Một ít khác biệt riêng cho từng hoa */
+.flower-daisy .petal{ filter:brightness(1.02); }
+.flower-round .petal{ filter:saturate(.95); }
+.flower-soft .petal{ filter:brightness(1.04); }
+.flower-star .petal{ filter:saturate(1.05); }
+.flower-wide .petal{ filter:brightness(1.01); }
+.flower-mini .petal{ filter:brightness(1.06); }
+.flower-lotus .petal{ filter:saturate(1.02); }
+.flower-sun .petal{ filter:saturate(1.08); }
+
+.sparkle{
+  z-index:35 !important;
+  right:-4px !important;
+  top:-4px !important;
+}
+
+.stem{
+  margin-top:2px !important;
+  width:8px !important;
+  height:42px !important;
+  background:#68a55d !important;
+}
+
+.student-name{
+  position:relative !important;
+  z-index:20 !important;
+  margin-top:14px !important;
+  min-height:36px !important;
+  padding:7px 10px !important;
+  max-width:120px !important;
+  width:100%;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  white-space:normal !important;
+  line-height:1.12 !important;
+  overflow:visible !important;
+  background:rgba(255,255,255,.92) !important;
+  border:1px solid rgba(111,146,118,.15);
+  box-shadow:0 4px 12px rgba(63,85,69,.12) !important;
+}
+
+.wilted{
+  filter:saturate(.75) brightness(.92) !important;
+}
+.wilted .clean-flower{
+  transform:rotate(5deg);
+}
+
+/* Responsive */
+@media (max-width:1200px){
+  .garden{grid-template-columns:repeat(4,minmax(130px,1fr)) !important;}
+}
+@media (max-width:760px){
+  .garden{
+    grid-template-columns:repeat(3,minmax(95px,1fr)) !important;
+    row-gap:28px !important;
+    column-gap:8px !important;
+    padding:48px 10px 110px !important;
+  }
+  .student-plot{min-height:175px !important;}
+  .flower-shell{min-height:112px !important;}
+  .student-name{
+    max-width:92px !important;
+    font-size:10.5px !important;
+    min-height:34px !important;
+    padding:6px 6px !important;
+  }
+}
+
+/* ============================================================
+   CHATBOT
+   ============================================================ */
+.chat-toggle{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  z-index:120;
+  border:0;
+  border-radius:999px;
+  padding:12px 16px;
+  font-weight:900;
+  background:linear-gradient(135deg,#ffeb98,#ffd7f1);
+  color:#4d5e49;
+  box-shadow:0 10px 24px rgba(64,87,66,.18);
+}
+.chatbot{
+  position:fixed;
+  right:20px;
+  bottom:74px;
+  z-index:130;
+  width:min(380px,92vw);
+  height:min(560px,74vh);
+  display:flex;
+  flex-direction:column;
+  background:#fffdf7;
+  border:1px solid rgba(121,164,125,.18);
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 22px 60px rgba(48,67,54,.22);
+}
+.chatbot-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:14px 14px 10px;
+  background:linear-gradient(135deg,#f5ffd9,#eef7ff);
+  border-bottom:1px solid rgba(121,164,125,.12);
+}
+.chatbot-sub{
+  font-size:12px;
+  color:#70806e;
+  margin-top:2px;
+}
+.chat-close{
+  border:0;
+  background:#ffffff;
+  border-radius:50%;
+  width:34px;
+  height:34px;
+  font-weight:900;
+}
+.chat-messages{
+  flex:1;
+  overflow:auto;
+  padding:12px;
+  background:#fffeff;
+}
+.chat-row{
+  display:flex;
+  margin:8px 0;
+}
+.chat-row.user{justify-content:flex-end;}
+.chat-row.bot{justify-content:flex-start;}
+.chat-bubble{
+  max-width:85%;
+  padding:10px 12px;
+  border-radius:16px;
+  font-size:14px;
+  line-height:1.4;
+  box-shadow:0 3px 10px rgba(72,92,75,.08);
+}
+.chat-row.user .chat-bubble{
+  background:#e6f7dc;
+}
+.chat-row.bot .chat-bubble{
+  background:#f4f1ff;
+}
+.chat-suggestions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:10px 12px;
+  border-top:1px solid rgba(121,164,125,.1);
+  background:#fffef7;
+}
+.chat-suggest{
+  border:1px solid rgba(121,164,125,.18);
+  background:#fff;
+  border-radius:999px;
+  padding:7px 10px;
+  font-size:12px;
+  font-weight:800;
+}
+.chat-form{
+  display:flex;
+  gap:8px;
+  padding:10px 12px 12px;
+  border-top:1px solid rgba(121,164,125,.1);
+  background:#fffdf7;
+}
+.chat-form input{
+  flex:1;
+  border:1px solid #d9e5d7;
+  border-radius:12px;
+  padding:10px 12px;
+}
+.chat-form button{
+  border:0;
+  border-radius:12px;
+  padding:10px 14px;
+  font-weight:800;
+  background:#78b57d;
+  color:white;
+}
+
+
+/* ============================================================
+   V8 – HOA GỌN, KHÔNG CHỒNG LÊN NHAU
+   Mỗi học sinh có một "ô vườn" cố định. Hoa chỉ nở bên trong ô.
+   ============================================================ */
+.garden{
+  grid-template-columns:repeat(8,minmax(120px,1fr)) !important;
+  gap:28px 18px !important;
+  padding:58px 24px 130px !important;
+}
+.student-plot{
+  min-height:190px !important;
+  width:100%;
+  overflow:visible;
+}
+.flower-shell.compact{
+  width:118px !important;
+  min-height:138px !important;
+  max-width:118px !important;
+  margin:0 auto;
+  transform:none !important;
+  animation:swayCompact 3.8s ease-in-out infinite alternate;
+}
+@keyframes swayCompact{to{transform:rotate(1.5deg)}}
+.compact-sprout{font-size:46px}
+.compact-head{
+  position:relative !important;
+  width:118px !important;
+  height:118px !important;
+  flex:0 0 118px !important;
+  transform:scale(var(--bloom,1)) !important;
+  transform-origin:50% 55%;
+  transition:transform .45s ease, filter .45s ease;
+}
+.compact-head .petal-field{
+  position:absolute;
+  inset:0;
+  transform-origin:50% 50%;
+}
+.compact-head .compact-petal{
+  position:absolute !important;
+  left:50% !important;
+  top:50% !important;
+  width:var(--pw) !important;
+  height:var(--ph) !important;
+  margin-left:calc(var(--pw)/-2) !important;
+  margin-top:calc(var(--ph)/-1) !important;
+  transform-origin:50% 100% !important;
+  transform:rotate(var(--angle)) translateY(calc(var(--radius)*-1)) !important;
+  background:var(--petal) !important;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.24),0 3px 7px rgba(45,68,48,.10);
+}
+.flower-five .compact-petal{border-radius:58% 58% 43% 43% !important}
+.flower-six .compact-petal{border-radius:65% 65% 40% 40% !important}
+.flower-daisy .compact-petal{border-radius:70% 70% 28% 28% !important}
+.flower-sun .compact-petal{border-radius:75% 75% 22% 22% !important}
+.flower-round .compact-petal{border-radius:50% !important}
+.flower-star .compact-petal{border-radius:72% 20% 72% 20% !important}
+.flower-double .compact-petal{border-radius:62% 62% 38% 38% !important}
+.flower-double .compact-petal.inner{filter:brightness(1.12);z-index:4 !important}
+.flower-soft .compact-petal{border-radius:60% 60% 52% 52% !important}
+
+/* Nhụy = ảnh học sinh ở đúng tâm hình học */
+.compact-head > .center{
+  position:absolute !important;
+  left:50% !important;
+  top:50% !important;
+  transform:translate(-50%,-50%) !important;
+  width:var(--center) !important;
+  height:var(--center) !important;
+  min-width:46px !important;
+  min-height:46px !important;
+  z-index:20 !important;
+  border-radius:50% !important;
+  background:#fff !important;
+  overflow:hidden !important;
+  border:4px solid #fff !important;
+  box-shadow:0 4px 10px rgba(40,58,44,.22),0 0 0 2px rgba(222,195,91,.55) !important;
+}
+.compact-head > .center img{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+  object-position:50% 38% !important;
+  transform:none !important;
+}
+.compact-head .sparkle{
+  z-index:30;
+  right:4px !important;
+  top:5px !important;
+}
+.student-name{
+  margin-top:8px !important;
+  min-height:33px !important;
+  width:min(136px,100%) !important;
+  max-width:136px !important;
+}
+.wilted.compact .compact-head{
+  transform:scale(var(--bloom,1)) rotate(6deg) translateY(3px) !important;
+  filter:saturate(.58) brightness(.92);
+}
+
+/* Celebration không được scale hoa ra khỏi ô */
+body.party-75 .flower-shell.compact,
+body.party-100 .flower-shell.compact{
+  animation:compactCelebrate .72s ease-in-out 7 alternate !important;
+}
+@keyframes compactCelebrate{
+  to{transform:translateY(-4px) rotate(1.5deg);filter:saturate(1.15) brightness(1.06)}
+}
+
+@media(max-width:1100px){
+  .garden{grid-template-columns:repeat(5,minmax(118px,1fr)) !important}
+}
+@media(max-width:760px){
+  .garden{grid-template-columns:repeat(3,minmax(100px,1fr)) !important;gap:24px 6px !important}
+  .flower-shell.compact{transform:scale(.90) !important;margin-bottom:-6px}
+}
+@media(max-width:430px){
+  .garden{grid-template-columns:repeat(2,minmax(118px,1fr)) !important}
+}
+
+/* ============================================================
+   CHATBOT
+   ============================================================ */
+.chat-fab{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  z-index:300;
+  width:58px;
+  height:58px;
+  border:0;
+  border-radius:50%;
+  background:#5fa86a;
+  color:#fff;
+  font-size:27px;
+  box-shadow:0 10px 28px rgba(54,85,61,.28);
+  cursor:pointer;
+}
+.chat-fab:hover{transform:translateY(-2px) scale(1.03)}
+.chat-panel{
+  position:fixed;
+  right:22px;
+  bottom:92px;
+  z-index:310;
+  width:min(390px,calc(100vw - 28px));
+  height:min(570px,calc(100vh - 120px));
+  display:flex;
+  flex-direction:column;
+  background:#fffdf8;
+  border:1px solid rgba(99,139,104,.18);
+  border-radius:24px;
+  box-shadow:0 22px 60px rgba(44,68,50,.28);
+  overflow:hidden;
+}
+.chat-header{
+  padding:14px 15px;
+  background:linear-gradient(135deg,#e5f7df,#e3f6ff);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+.chat-header strong{display:block;font-size:16px}
+.chat-header small{display:block;font-size:11px;margin-top:2px;opacity:.75;line-height:1.3}
+.chat-close{
+  border:0;background:rgba(255,255,255,.7);border-radius:50%;width:30px;height:30px;font-weight:900
+}
+.chat-messages{
+  flex:1;
+  overflow:auto;
+  padding:14px;
+  background:#fbfff8;
+}
+.chat-msg{display:flex;margin:8px 0}
+.chat-msg.user{justify-content:flex-end}
+.bubble{
+  max-width:82%;
+  padding:9px 11px;
+  border-radius:15px;
+  font-size:13px;
+  line-height:1.4;
+  white-space:pre-wrap;
+}
+.chat-msg.bot .bubble{background:#edf6e9;border-bottom-left-radius:5px}
+.chat-msg.user .bubble{background:#dff1ff;border-bottom-right-radius:5px}
+.chat-suggestions{
+  padding:7px 10px;
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  border-top:1px solid #eef0e9;
+}
+.chat-suggestions button{
+  flex:0 0 auto;
+  border:1px solid #d8e7d5;
+  background:#fff;
+  border-radius:99px;
+  padding:6px 8px;
+  font-size:11px;
+  font-weight:800;
+}
+.chat-form{
+  display:flex;
+  gap:7px;
+  padding:10px;
+  border-top:1px solid #e8ede5;
+  background:#fff;
+}
+.chat-form input{
+  flex:1;
+  min-width:0;
+  border:1px solid #d9e4d6;
+  border-radius:13px;
+  padding:10px;
+}
+.chat-form button{
+  border:0;
+  border-radius:13px;
+  background:#68aa70;
+  color:white;
+  font-weight:800;
+  padding:0 14px;
+}
+.chat-typing{opacity:.65;font-style:italic}
+
+
+/* ============================================================
+   V9 – BỘ HOA MINH HỌA SVG
+   Gọn, đẹp, đồng nhất và không chồng lên nhau.
+   ============================================================ */
+.garden{
+  grid-template-columns:repeat(8,minmax(126px,1fr)) !important;
+  gap:30px 18px !important;
+}
+.student-plot{
+  min-height:198px !important;
+  overflow:hidden !important;
+  border-radius:22px;
+  padding-top:8px !important;
+}
+.svg-flower-shell{
+  width:120px !important;
+  max-width:120px !important;
+  min-height:145px !important;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  transform:none !important;
+  animation:svgSway 4.2s ease-in-out infinite alternate;
+}
+@keyframes svgSway{
+  to{transform:rotate(1.2deg)}
+}
+.svg-flower-head{
+  width:120px;
+  height:120px;
+  transform:scale(var(--bloom,1));
+  transform-origin:50% 65%;
+  transition:transform .45s ease,filter .45s ease;
+  position:relative;
+}
+.flower-svg{
+  width:120px;
+  height:120px;
+  display:block;
+  overflow:visible;
+}
+.svg-sparkle{
+  position:absolute !important;
+  right:4px !important;
+  top:7px !important;
+  z-index:20;
+  font-size:18px;
+}
+.svg-stem{
+  width:7px;
+  height:38px;
+  background:#62a65a;
+  border-radius:99px;
+  position:relative;
+  margin-top:-21px;
+  z-index:-1;
+}
+.svg-leaf{
+  position:absolute;
+  top:14px;
+  width:26px;
+  height:14px;
+  background:#76bc68;
+  border-radius:85% 15% 85% 15%;
+}
+.svg-leaf.left{right:3px;transform:rotate(24deg)}
+.svg-leaf.right{left:3px;transform:scaleX(-1) rotate(24deg)}
+.svg-sprout{font-size:48px;line-height:1}
+
+/* Hoa héo: chỉ hơi cúi và giảm độ tươi, không méo hình */
+.wilted.svg-flower-shell .svg-flower-head{
+  transform:scale(var(--bloom,1)) rotate(5deg) translateY(3px) !important;
+  filter:saturate(.58) brightness(.92);
+}
+
+/* Tên nằm riêng hoàn toàn dưới hoa */
+.student-name{
+  margin-top:8px !important;
+  min-height:34px !important;
+  width:min(138px,100%) !important;
+  max-width:138px !important;
+  z-index:30 !important;
+}
+
+/* Không scale cả bông khi ăn mừng */
+body.party-75 .svg-flower-shell,
+body.party-100 .svg-flower-shell{
+  animation:svgCelebrate .72s ease-in-out 7 alternate !important;
+}
+@keyframes svgCelebrate{
+  to{transform:translateY(-4px) rotate(1deg);filter:saturate(1.12) brightness(1.05)}
+}
+
+@media(max-width:1100px){
+  .garden{grid-template-columns:repeat(5,minmax(126px,1fr)) !important}
+}
+@media(max-width:760px){
+  .garden{
+    grid-template-columns:repeat(3,minmax(106px,1fr)) !important;
+    gap:26px 5px !important;
+  }
+  .svg-flower-shell{
+    transform:scale(.90) !important;
+    margin-bottom:-7px;
+  }
+  .student-plot{min-height:185px !important}
+}
+@media(max-width:430px){
+  .garden{grid-template-columns:repeat(2,minmax(126px,1fr)) !important}
+}
+
+
+/* ============================================================
+   V10 – ỔN ĐỊNH: 40 HOA LUÔN HIỆN
+   Nhụy/ảnh giữ nguyên; chỉ cánh hoa bung dần theo điểm.
+   ============================================================ */
+.svg-flower-head{
+  transform:none !important;
+}
+.svg-flower-shell.stage-1 .flower-svg{filter:saturate(.72) brightness(.98)}
+.svg-flower-shell.stage-2 .flower-svg{filter:saturate(.82) brightness(1)}
+.svg-flower-shell.stage-3 .flower-svg{filter:saturate(.92) brightness(1.01)}
+.svg-flower-shell.stage-4 .flower-svg{filter:saturate(1.02) brightness(1.03)}
+.svg-flower-shell.stage-5 .flower-svg{filter:saturate(1.13) brightness(1.06)}
+.svg-flower-shell.wilted .flower-svg{
+  filter:saturate(.55) brightness(.90) !important;
+}
+/* Không dùng overflow hidden ở ô học sinh: giữ bóng đổ nhưng kích thước hoa vẫn cố định */
+.student-plot{overflow:visible !important}
+
+
+/* ============================================================
+   V12 – CẢNH NGÀY / ĐÊM / MƯA / CẦU VỒNG / NẮNG
+   ============================================================ */
+.garden-wrap{
+  transition:background 1.2s ease, box-shadow 1.2s ease, border-color 1.2s ease;
+}
+
+/* Mặc định là ban ngày dịu */
+body.mode-day .garden-wrap{
+  background:
+    radial-gradient(circle at 22% 14%,rgba(255,255,255,.92) 0 5%,transparent 6%),
+    linear-gradient(#dff6ff 0%,#effcff 46%,#eef9d7 70%,#c7e29e 100%) !important;
+}
+body.mode-day:not(.weather-rainy) .garden-wrap{
+  box-shadow:0 18px 50px rgba(145,196,255,.18), var(--shadow);
+}
+
+/* Ban đêm */
+body.mode-night{
+  background:linear-gradient(#11283a 0%,#1e3a54 40%,#284d3d 68%,#6d9460 100%) !important;
+}
+body.mode-night .hero h1,
+body.mode-night .subtitle,
+body.mode-night .teacher-name,
+body.mode-night .eyebrow{
+  color:#eff9ff;
+}
+body.mode-night .garden-wrap{
+  background:
+    radial-gradient(circle at 30% 18%,rgba(255,255,255,.08) 0 2%,transparent 3%),
+    linear-gradient(#0f2940 0%,#1c4860 45%,#35564a 72%,#718e64 100%) !important;
+  border-color:rgba(255,255,255,.25) !important;
+  box-shadow:0 20px 60px rgba(5,19,31,.40), var(--shadow);
+}
+body.mode-night .student-name{
+  background:rgba(255,255,255,.9) !important;
+}
+
+/* Các lớp thời tiết */
+body.weather-sunny .garden-wrap{
+  box-shadow:0 0 55px rgba(255,216,102,.35), 0 0 95px rgba(116,205,255,.15), var(--shadow);
+}
+body.weather-rainy .garden-wrap{
+  filter:saturate(.95);
+}
+body.weather-rainbow .garden-wrap{
+  box-shadow:0 0 42px rgba(255,214,110,.24), 0 0 90px rgba(136,206,255,.22), var(--shadow);
+}
+
+.scene-layer{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  overflow:hidden;
+}
+.scene-status{
+  position:absolute;
+  top:14px;
+  left:18px;
+  background:rgba(255,255,255,.80);
+  color:#486553;
+  border-radius:999px;
+  padding:7px 12px;
+  font-size:12px;
+  font-weight:900;
+  box-shadow:0 5px 14px rgba(48,72,57,.12);
+  transition:.5s;
+}
+body.mode-night .scene-status{
+  background:rgba(17,38,56,.72);
+  color:#f5fbff;
+}
+
+.scene-sun,.scene-moon,.scene-rainbow{
+  position:absolute;
+  transition:opacity 1s ease, transform 1s ease;
+  filter:drop-shadow(0 10px 18px rgba(44,69,84,.18));
+  opacity:0;
+}
+.scene-sun{
+  top:30px; right:40px;
+  font-size:82px;
+  transform:translateY(-10px) scale(.85);
+}
+.scene-moon{
+  top:34px; right:44px;
+  font-size:62px;
+  transform:translateY(-10px) scale(.85);
+}
+.scene-rainbow{
+  left:50%;
+  top:28px;
+  transform:translateX(-50%) translateY(-6px) scale(.82);
+  font-size:150px;
+}
+body.mode-day .scene-sun{opacity:1; transform:translateY(0) scale(1)}
+body.mode-night .scene-moon{opacity:1; transform:translateY(0) scale(1)}
+body.weather-rainbow .scene-rainbow{opacity:1; transform:translateX(-50%) translateY(0) scale(1)}
+
+.scene-clouds,.scene-rain,.scene-stars{
+  position:absolute;
+  inset:0;
+}
+.scene-cloud{
+  position:absolute;
+  background:rgba(255,255,255,.72);
+  border-radius:999px;
+  box-shadow:
+    22px -10px 0 6px rgba(255,255,255,.72),
+    50px -4px 0 9px rgba(255,255,255,.72),
+    70px 0 0 0 rgba(255,255,255,.72);
+  width:72px;
+  height:28px;
+  opacity:.55;
+  animation:cloudDrift linear infinite;
+}
+body.mode-night .scene-cloud{
+  background:rgba(230,243,255,.32);
+  box-shadow:
+    22px -10px 0 6px rgba(230,243,255,.32),
+    50px -4px 0 9px rgba(230,243,255,.32),
+    70px 0 0 0 rgba(230,243,255,.32);
+}
+@keyframes cloudDrift{
+  from{transform:translateX(-130px)}
+  to{transform:translateX(calc(100vw + 180px))}
+}
+
+.scene-rain{
+  opacity:0;
+  transition:opacity .55s ease;
+}
+body.weather-rainy .scene-rain{
+  opacity:1;
+}
+.rain-drop{
+  position:absolute;
+  top:-25px;
+  width:2px;
+  height:18px;
+  background:linear-gradient(to bottom, rgba(255,255,255,0), rgba(128,206,255,.95));
+  border-radius:999px;
+  animation:rainFall linear infinite;
+}
+@keyframes rainFall{
+  from{transform:translateY(-20px)}
+  to{transform:translateY(860px)}
+}
+
+.scene-stars{
+  opacity:0;
+  transition:opacity .8s ease;
+}
+body.mode-night .scene-stars{
+  opacity:1;
+}
+.scene-star{
+  position:absolute;
+  font-size:11px;
+  color:#fff8a8;
+  opacity:.7;
+  animation:twinkle 2.5s ease-in-out infinite alternate;
+}
+@keyframes twinkle{
+  0%{opacity:.3; transform:scale(.85)}
+  100%{opacity:1; transform:scale(1.18)}
+}
+
+body.weather-rainy .flower-shell{
+  animation-duration:4.8s !important;
+}
+body.mode-night .butterfly{
+  opacity:.55;
+}
+body.mode-night .cloud{
+  opacity:.45;
+}
+
+@media (max-width:760px){
+  .scene-sun{font-size:60px; right:16px; top:26px}
+  .scene-moon{font-size:48px; right:18px; top:28px}
+  .scene-rainbow{font-size:104px; top:36px}
+  .scene-status{font-size:11px; padding:6px 10px}
+}
+
+
+/* ============================================================
+   V12 – BẦU TRỜI ĐỘNG: NGÀY / NẮNG / MƯA / CẦU VỒNG / ĐÊM
+   ============================================================ */
+.garden-wrap{
+  background:linear-gradient(#dff6ff 0%,#effcff 46%,#eef9d7 70%,#c7e29e 100%) !important;
+  isolation:isolate;
+}
+.weather-layer{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+.sky-gradient,
+.weather-glow{
+  position:absolute;
+  inset:0;
+  transition:opacity .8s ease, background 1.2s ease;
+}
+.sky-gradient{
+  background:linear-gradient(180deg,#dff6ff 0%,#eefaff 45%,rgba(255,255,255,0) 100%);
+}
+.weather-glow{
+  opacity:.42;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(255,232,146,.9), transparent 22%),
+    radial-gradient(circle at 12% 16%, rgba(255,255,255,.55), transparent 18%);
+}
+.sky-orb{
+  position:absolute;
+  top:58px;
+  right:84px;
+  z-index:1;
+  font-size:68px;
+  filter:drop-shadow(0 8px 18px rgba(255,255,255,.45));
+  transition:all 1s ease;
+}
+.star-field,
+.rain-field,
+.sun-ray-field{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+.star{
+  position:absolute;
+  color:#fff7cf;
+  opacity:0;
+  animation:starTwinkle 2.4s ease-in-out infinite;
+}
+@keyframes starTwinkle{
+  0%,100%{opacity:.2;transform:scale(.9)}
+  50%{opacity:1;transform:scale(1.2)}
+}
+.rain-drop{
+  position:absolute;
+  top:-14px;
+  width:2px;
+  height:18px;
+  border-radius:99px;
+  background:linear-gradient(180deg, rgba(255,255,255,.2), rgba(126,197,255,.95));
+  opacity:.72;
+  animation:rainFall linear infinite;
+}
+@keyframes rainFall{
+  from{transform:translateY(-6vh) translateX(0) rotate(10deg)}
+  to{transform:translateY(118vh) translateX(-38px) rotate(10deg)}
+}
+.rain-splash{
+  position:absolute;
+  bottom:88px;
+  width:11px;
+  height:4px;
+  border-radius:50%;
+  border:2px solid rgba(185,230,255,.8);
+  border-top:0;
+  opacity:0;
+  animation:splash 1.2s linear infinite;
+}
+@keyframes splash{
+  0%,70%{opacity:0;transform:scale(.5)}
+  75%{opacity:.75}
+  100%{opacity:0;transform:scale(1.4)}
+}
+.sun-ray{
+  position:absolute;
+  left:78%;
+  top:7%;
+  width:5px;
+  height:58px;
+  transform-origin:50% 100%;
+  border-radius:99px;
+  background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,226,121,.1));
+  opacity:0;
+}
+.rainbow-arc{
+  position:absolute;
+  left:50%;
+  top:38px;
+  width:min(58vw,540px);
+  height:min(28vw,250px);
+  transform:translateX(-50%);
+  border-radius:280px 280px 0 0;
+  border-top:16px solid #ff7b7b;
+  border-left:16px solid #ffb46f;
+  border-right:16px solid #7bc9ff;
+  opacity:.92;
+  box-shadow:
+    0 0 0 14px #ffd76f,
+    0 0 0 28px #7fe089,
+    0 0 0 42px #7bc9ff,
+    0 0 0 56px #c59cff;
+  clip-path:inset(0 0 44% 0 round 280px 280px 0 0);
+  filter:drop-shadow(0 10px 20px rgba(118,152,180,.22));
+  animation:rainbowAppear 5.5s ease-in-out infinite alternate;
+}
+@keyframes rainbowAppear{
+  from{opacity:.65;transform:translateX(-50%) translateY(2px)}
+  to{opacity:1;transform:translateX(-50%) translateY(-3px)}
+}
+.weather-label{
+  position:absolute;
+  left:20px;
+  top:20px;
+  z-index:2;
+  padding:8px 12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.75);
+  backdrop-filter:blur(6px);
+  box-shadow:0 7px 18px rgba(50,80,58,.08);
+  font-size:12px;
+  font-weight:900;
+  color:#526253;
+}
+
+/* ---- trạng thái thời tiết ---- */
+.garden-wrap.weather-day .sky-gradient{
+  background:linear-gradient(180deg,#dff6ff 0%,#eefaff 48%,rgba(255,255,255,0) 100%);
+}
+.garden-wrap.weather-day .weather-glow{opacity:.34}
+.garden-wrap.weather-day .sky-orb{content:"";right:86px;top:56px}
+.garden-wrap.weather-day .star{opacity:0 !important}
+.garden-wrap.weather-day .rain-drop,
+.garden-wrap.weather-day .rain-splash{opacity:0 !important}
+.garden-wrap.weather-day .sun-ray{opacity:0}
+
+.garden-wrap.weather-sunny .sky-gradient{
+  background:linear-gradient(180deg,#d7f1ff 0%,#e9fbff 48%,rgba(255,255,255,0) 100%);
+}
+.garden-wrap.weather-sunny .weather-glow{
+  opacity:.62;
+  background:
+    radial-gradient(circle at 82% 16%, rgba(255,217,106,.98), transparent 18%),
+    radial-gradient(circle at 74% 19%, rgba(255,255,255,.48), transparent 9%),
+    radial-gradient(circle at 18% 14%, rgba(255,255,255,.38), transparent 16%);
+}
+.garden-wrap.weather-sunny .sky-orb{
+  right:78px; top:48px; transform:scale(1.08);
+}
+.garden-wrap.weather-sunny .sun-ray{
+  opacity:.9;
+  animation:sunRayPulse 2.8s ease-in-out infinite;
+}
+@keyframes sunRayPulse{
+  0%,100%{opacity:.3}
+  50%{opacity:1}
+}
+
+.garden-wrap.weather-rain .sky-gradient{
+  background:linear-gradient(180deg,#9ec2da 0%,#bfd9ea 55%,rgba(255,255,255,.12) 100%);
+}
+.garden-wrap.weather-rain .weather-glow{
+  opacity:.28;
+  background:
+    radial-gradient(circle at 68% 18%, rgba(255,255,255,.15), transparent 18%),
+    radial-gradient(circle at 22% 14%, rgba(147,177,200,.35), transparent 20%);
+}
+.garden-wrap.weather-rain .sky-orb{
+  right:80px; top:58px; filter:grayscale(.2) brightness(.92);
+}
+.garden-wrap.weather-rain .cloud{opacity:.95}
+.garden-wrap.weather-rain .rain-drop{opacity:.9}
+.garden-wrap.weather-rain .rain-splash{opacity:.55}
+.garden-wrap.weather-rain .butterfly{opacity:.15}
+
+.garden-wrap.weather-rainbow .sky-gradient{
+  background:linear-gradient(180deg,#cbeeff 0%,#e8fbff 52%,rgba(255,255,255,0) 100%);
+}
+.garden-wrap.weather-rainbow .weather-glow{
+  opacity:.56;
+  background:
+    radial-gradient(circle at 80% 15%, rgba(255,219,119,.95), transparent 18%),
+    radial-gradient(circle at 14% 17%, rgba(255,255,255,.36), transparent 15%);
+}
+.garden-wrap.weather-rainbow .sky-orb{
+  right:74px; top:46px; transform:scale(1.04);
+}
+.garden-wrap.weather-rainbow .rainbow-arc.hidden{display:block !important}
+.garden-wrap.weather-rainbow .rain-drop{opacity:.2}
+.garden-wrap.weather-rainbow .rain-splash{opacity:.12}
+
+.garden-wrap.weather-night{
+  background:linear-gradient(180deg,#16253f 0%,#2a395d 48%,#35586f 72%,#6aa07e 100%) !important;
+}
+.garden-wrap.weather-night .sky-gradient{
+  background:linear-gradient(180deg,rgba(17,31,55,.9) 0%,rgba(39,58,93,.78) 50%,rgba(46,76,96,.18) 100%);
+}
+.garden-wrap.weather-night .weather-glow{
+  opacity:.40;
+  background:
+    radial-gradient(circle at 82% 16%, rgba(245,248,255,.38), transparent 16%),
+    radial-gradient(circle at 20% 16%, rgba(182,193,255,.12), transparent 14%);
+}
+.garden-wrap.weather-night .sky-orb{
+  right:74px; top:48px; filter:drop-shadow(0 0 18px rgba(255,255,255,.22));
+}
+.garden-wrap.weather-night .star{opacity:1}
+.garden-wrap.weather-night .cloud{opacity:.5}
+.garden-wrap.weather-night .butterfly{opacity:.08}
+.garden-wrap.weather-night .student-name{background:rgba(255,255,255,.88) !important}
+
+/* utility */
+.hidden{display:none!important}
+
+@media(max-width:760px){
+  .sky-orb{font-size:52px; right:36px; top:54px}
+  .rainbow-arc{
+    width:min(72vw,390px);
+    height:min(36vw,170px);
+    top:52px;
+  }
+  .weather-label{font-size:11px; left:12px; top:12px}
+}
+
+
+/* ============================================================
+   V13 – NÀNG TIÊN BƯỚM & THÔNG ĐIỆP TÍCH CỰC MỖI NGÀY
+   ============================================================ */
+.fairy-btn{
+  background:linear-gradient(135deg,#fff0fb,#eef8ff) !important;
+}
+.fairy-message-overlay{
+  position:fixed;
+  inset:0;
+  z-index:420;
+  pointer-events:none;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  background:radial-gradient(circle at center,rgba(255,255,255,.12),rgba(255,235,249,.07),transparent 70%);
+}
+.fairy-message-overlay.hidden{display:none!important}
+
+.fairy-flight-path{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+.butterfly-fairy{
+  position:absolute;
+  left:-150px;
+  top:24%;
+  width:125px;
+  height:100px;
+  display:grid;
+  place-items:center;
+  transform-origin:center;
+  animation:fairyDeliver 4.2s cubic-bezier(.26,.74,.3,1) both;
+  filter:drop-shadow(0 10px 14px rgba(88,67,114,.18));
+}
+.fairy-person{
+  position:relative;
+  z-index:3;
+  font-size:54px;
+  line-height:1;
+}
+.fairy-wing{
+  position:absolute;
+  left:0;
+  top:14px;
+  z-index:1;
+  font-size:58px;
+  transform:rotate(-18deg);
+  animation:wingFlutter .28s ease-in-out infinite alternate;
+  opacity:.94;
+}
+@keyframes wingFlutter{
+  to{transform:rotate(10deg) scale(.92)}
+}
+.fairy-sparkle{
+  position:absolute;
+  z-index:4;
+  font-size:18px;
+  animation:fairySparkle .8s ease-in-out infinite alternate;
+}
+.fairy-sparkle.s1{right:8px;top:7px}
+.fairy-sparkle.s2{right:-2px;top:34px;animation-delay:.2s}
+.fairy-sparkle.s3{left:8px;top:3px;animation-delay:.4s}
+@keyframes fairySparkle{
+  to{transform:scale(1.35) rotate(15deg);opacity:.58}
+}
+@keyframes fairyDeliver{
+  0%{left:-150px;top:29%;transform:rotate(-7deg) scale(.75);opacity:0}
+  12%{opacity:1}
+  42%{left:43%;top:18%;transform:rotate(4deg) scale(1)}
+  60%{left:50%;top:22%;transform:rotate(-4deg) scale(1.06)}
+  78%{left:69%;top:15%;transform:rotate(7deg) scale(.92)}
+  100%{left:110%;top:8%;transform:rotate(10deg) scale(.7);opacity:0}
+}
+
+.daily-message-card{
+  position:relative;
+  width:min(560px,90vw);
+  padding:28px 30px 25px;
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 88% 12%,rgba(255,229,125,.28),transparent 18%),
+    linear-gradient(145deg,rgba(255,255,255,.97),rgba(250,255,244,.97));
+  border:3px solid rgba(255,255,255,.95);
+  box-shadow:
+    0 26px 70px rgba(49,74,55,.25),
+    0 0 0 1px rgba(151,187,151,.12);
+  opacity:0;
+  transform:translateY(24px) scale(.84);
+  animation:messageCardArrive 7.8s ease both;
+  pointer-events:auto;
+}
+@keyframes messageCardArrive{
+  0%,25%{opacity:0;transform:translateY(24px) scale(.84)}
+  34%{opacity:1;transform:translateY(-5px) scale(1.025)}
+  41%,100%{opacity:1;transform:translateY(0) scale(1)}
+}
+.daily-message-card::before,
+.daily-message-card::after{
+  content:"";
+  position:absolute;
+  border-radius:50%;
+  filter:blur(1px);
+  opacity:.62;
+}
+.daily-message-card::before{
+  width:48px;height:48px;left:-18px;top:28px;
+  background:radial-gradient(circle,#ffe6f8,transparent 70%);
+}
+.daily-message-card::after{
+  width:62px;height:62px;right:-18px;bottom:18px;
+  background:radial-gradient(circle,#dff6ff,transparent 70%);
+}
+.daily-message-close{
+  position:absolute;
+  right:13px;
+  top:12px;
+  width:36px;
+  height:36px;
+  border:0;
+  border-radius:50%;
+  background:#eef4e9;
+  color:#526454;
+  font-weight:900;
+  cursor:pointer;
+}
+.message-badge{
+  display:inline-block;
+  padding:7px 11px;
+  border-radius:99px;
+  background:linear-gradient(135deg,#ffe5f5,#e8f6ff);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.04em;
+  color:#6c6375;
+}
+.message-date{
+  margin-top:8px;
+  font-size:12px;
+  font-weight:800;
+  color:#8a9688;
+}
+.message-quote-mark{
+  height:42px;
+  margin-top:10px;
+  font-family:Georgia,serif;
+  font-size:70px;
+  line-height:.8;
+  color:#b5d9aa;
+}
+.daily-message-text{
+  margin:0;
+  font-family:"Baloo 2","Nunito",sans-serif;
+  font-size:clamp(22px,3.1vw,31px);
+  line-height:1.25;
+  font-weight:700;
+  color:#45634c;
+  text-align:center;
+}
+.message-signature{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:9px;
+  margin-top:20px;
+  padding-top:15px;
+  border-top:2px dashed #dce9d8;
+  text-align:left;
+}
+.message-signature > span{font-size:28px}
+.message-signature strong{display:block;color:#6b5878}
+.message-signature small{display:block;color:#879486;margin-top:1px}
+
+/* Khu vườn lóe sáng nhẹ khi thông điệp đến */
+body.fairy-message-active .garden-wrap{
+  animation:fairyGardenGlow 1.1s ease-in-out 3 alternate;
+}
+body.fairy-message-active .butterfly{
+  animation-duration:3.6s;
+  filter:drop-shadow(0 0 8px rgba(255,238,133,.75));
+}
+@keyframes fairyGardenGlow{
+  to{box-shadow:0 0 44px rgba(255,230,133,.45),0 0 85px rgba(213,177,255,.25)}
+}
+
+@media(max-width:600px){
+  .daily-message-card{padding:25px 20px 21px}
+  .butterfly-fairy{transform:scale(.85)}
+}
+
+
+/* ============================================================
+   V14 – FIREBASE CLOUD SYNC
+   ============================================================ */
+.sync-status{
+  display:inline-flex;
+  align-items:center;
+  min-height:40px;
+  padding:8px 11px;
+  border-radius:14px;
+  font-size:12px;
+  font-weight:900;
+  box-shadow:0 4px 12px rgba(57,78,62,.08);
+  border:1px solid rgba(255,255,255,.75);
+}
+.sync-status.local{background:#f0f1ed;color:#687066}
+.sync-status.connecting{background:#fff3c9;color:#826d2f}
+.sync-status.cloud{background:#dff5e6;color:#397448}
+.sync-status.error{background:#ffe1df;color:#98443e}
+.login-intro{margin-top:4px;font-size:13px;line-height:1.45;color:#617062}
+.login-label{display:block;font-size:12px;font-weight:900;margin:10px 0 5px}
+#teacherEmailInput,
+#teacherPasswordInput{
+  width:100%;
+  padding:11px 12px;
+  border:1px solid #d7e3d4;
+  border-radius:12px;
+  background:#fff;
+}
+.login-divider{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin:16px 0 10px;
+  color:#9aa297;
+  font-size:11px;
+  font-weight:800;
+}
+.login-divider::before,.login-divider::after{
+  content:"";
+  flex:1;
+  height:1px;
+  background:#e5e9e2;
+}
+.demo-login{
+  border:1px dashed #d7e1d3;
+  border-radius:14px;
+  padding:9px 11px;
+  background:#fafcf8;
+}
+.demo-login summary{
+  cursor:pointer;
+  font-weight:900;
+  color:#6a7766;
+}
+.demo-login #pinInput{margin:8px 0}
+.cloud-uploading{
+  opacity:.7;
+  pointer-events:none;
+}
+
+
+/* ============================================================
+   V15 – CỔNG VÀO LỚP 3.3 BẰNG MÃ LỚP
+   ============================================================ */
+body.gate-locked{
+  overflow:hidden !important;
+}
+body.gate-locked > *:not(.class-gate){
+  visibility:hidden;
+}
+.class-gate{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:
+    radial-gradient(circle at 15% 15%,rgba(255,231,156,.52),transparent 25%),
+    radial-gradient(circle at 84% 18%,rgba(207,237,255,.72),transparent 28%),
+    radial-gradient(circle at 74% 83%,rgba(229,211,255,.58),transparent 27%),
+    linear-gradient(160deg,#e8f8ff,#f7fff0 56%,#fff3f9);
+}
+.class-gate.hidden{display:none!important}
+.class-gate::before,
+.class-gate::after{
+  content:"";
+  position:absolute;
+  width:230px;
+  height:230px;
+  border-radius:50%;
+  filter:blur(30px);
+  opacity:.35;
+}
+.class-gate::before{left:-90px;bottom:-80px;background:#b8e5a8}
+.class-gate::after{right:-80px;top:-80px;background:#ffc9e6}
+.class-gate-card{
+  position:relative;
+  z-index:2;
+  width:min(460px,94vw);
+  padding:30px 30px 24px;
+  border-radius:30px;
+  background:rgba(255,255,255,.94);
+  border:2px solid rgba(255,255,255,.96);
+  box-shadow:0 26px 80px rgba(57,84,64,.24);
+  text-align:center;
+}
+.gate-mascot{
+  font-size:58px;
+  line-height:1;
+  margin-bottom:8px;
+  animation:gateFloat 3s ease-in-out infinite;
+}
+@keyframes gateFloat{
+  50%{transform:translateY(-6px) rotate(2deg)}
+}
+.gate-school{
+  margin:0;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.075em;
+  color:#7b8b7c;
+}
+.class-gate-card h1{
+  margin:7px 0 5px;
+  font-family:"Baloo 2",sans-serif;
+  font-size:38px;
+  line-height:1;
+  color:#4f8758;
+}
+.gate-subtitle{
+  margin:0 auto 20px;
+  max-width:330px;
+  font-size:13px;
+  line-height:1.45;
+  color:#758176;
+}
+.class-gate-card > label{
+  display:block;
+  text-align:left;
+  margin:0 0 6px 3px;
+  font-size:13px;
+  font-weight:900;
+  color:#536854;
+}
+.gate-input-row{
+  display:flex;
+  gap:7px;
+  align-items:center;
+}
+#classCodeInput{
+  flex:1;
+  width:100%;
+  min-width:0;
+  border:2px solid #dce9d8;
+  border-radius:15px;
+  padding:12px 13px;
+  font-size:17px;
+  text-align:center;
+  letter-spacing:.04em;
+  outline:none;
+  background:#fbfff9;
+}
+#classCodeInput:focus{
+  border-color:#8cc392;
+  box-shadow:0 0 0 4px rgba(140,195,146,.14);
+}
+.gate-eye{
+  width:45px;
+  height:45px;
+  flex:0 0 45px;
+  border:0;
+  border-radius:14px;
+  background:#eef4ec;
+  cursor:pointer;
+}
+.gate-enter-btn{
+  width:100%;
+  margin-top:11px;
+  border:0;
+  border-radius:15px;
+  padding:12px 15px;
+  background:linear-gradient(135deg,#65ad70,#82bd79);
+  color:#fff;
+  font-weight:900;
+  box-shadow:0 8px 18px rgba(74,137,83,.2);
+  cursor:pointer;
+}
+.gate-enter-btn:hover{transform:translateY(-1px)}
+.gate-error{
+  min-height:19px;
+  margin:8px 0 0;
+  color:#b04b48;
+  font-size:12px;
+  font-weight:800;
+}
+.gate-note{
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  margin-top:13px;
+  padding:10px 11px;
+  background:#fff8d8;
+  border-radius:13px;
+  text-align:left;
+  color:#756a3d;
+}
+.gate-note p{
+  margin:0;
+  font-size:11px;
+  line-height:1.4;
+  font-weight:700;
+}
+.gate-shake{animation:gateShake .32s ease}
+@keyframes gateShake{
+  25%{transform:translateX(-7px)}
+  50%{transform:translateX(7px)}
+  75%{transform:translateX(-4px)}
+}

@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isTeacher() {
+      return request.auth != null
+             && request.auth.uid == "CAt49gdVV9a0WD42dbwkmtg1g3i1";
+    }
+
+    match /classes/lop-3-3-2026-2027 {
+      allow read: if true;
+      allow write: if isTeacher();
+
+      match /students/{studentId} {
+        allow read: if true;
+        allow write: if isTeacher();
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

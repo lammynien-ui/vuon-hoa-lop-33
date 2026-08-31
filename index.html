@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vườn hoa 3.3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="gate-locked">
+  <div id="classGate" class="class-gate" role="dialog" aria-modal="true" aria-label="Cổng vào lớp 3.3">
+    <div class="class-gate-card">
+      <div class="gate-mascot">🦋🌷</div>
+      <p class="gate-school">TRƯỜNG TIỂU HỌC TRẦN BÌNH TRỌNG</p>
+      <h1>Vườn hoa lớp 3.3</h1>
+      <p class="gate-subtitle">Khu vườn dành riêng cho học sinh và gia đình lớp 3.3.</p>
+
+      <label for="classCodeInput">🔐 Nhập Mã lớp</label>
+      <div class="gate-input-row">
+        <input id="classCodeInput" type="password" maxlength="40" autocomplete="off" placeholder="Mã lớp 3.3" />
+        <button id="classCodeToggle" type="button" class="gate-eye" aria-label="Hiện/ẩn mã">👁️</button>
+      </div>
+
+      <button id="classGateEnterBtn" class="gate-enter-btn">🌱 Vào khu vườn</button>
+      <p id="classGateError" class="gate-error" aria-live="polite"></p>
+
+      <div class="gate-note">
+        <span>💡</span>
+        <p>Mã lớp do GVCN cung cấp trong nhóm lớp. Không chia sẻ mã ra ngoài.</p>
+      </div>
+    </div>
+  </div>
+  <div class="sky-decor sky-1"></div>
+  <div class="sky-decor sky-2"></div>
+
+  <header class="hero">
+    <div>
+      <p class="eyebrow">TRƯỜNG TIỂU HỌC TRẦN BÌNH TRỌNG • NĂM HỌC 2026–2027</p>
+      <p class="teacher-name">👩‍🏫 GVCN: <strong>Lâm Mỹ Niên</strong></p>
+      <h1>🌷 Vườn hoa lớp 3.3 🌷</h1>
+      <p class="subtitle">40 bông hoa – 40 sắc màu – cùng lớn lên mỗi ngày.</p>
+    </div>
+
+    <div class="class-goal water-goal">
+      <div class="water-tank" aria-label="Bình nước của lớp">
+        <div id="tankWater" class="tank-water"></div>
+        <div class="tank-shine"></div>
+        <span class="tank-icon">💧</span>
+      </div>
+      <div class="water-goal-info">
+        <strong>💧 Bình nước của lớp 3.3</strong>
+        <div class="goal-bar"><span id="goalFill"></span></div>
+        <small>
+          <span id="goalPoints">0</span> / <span id="goalTarget">100</span> giọt
+          • Đã đầy <b id="celebrationCount">0</b> bình
+        </small>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="toolbar">
+      <label class="tool-btn file-label" title="Chỉ nghe thử trên máy này. Nhạc dùng chung là file music/music.mp3 trên website.">
+        🎵 Chọn nhạc thử
+        <input id="musicInput" type="file" accept="audio/*" hidden>
+      </label>
+      <button id="soundBtn" class="tool-btn" title="Phát/tạm dừng nhạc">▶️ Phát nhạc</button>
+      <button id="weatherBtn" class="tool-btn" title="Đổi bầu trời của khu vườn">🌤 Bầu trời</button>
+      <button id="dailyMessageBtn" class="tool-btn fairy-btn" title="Xem thông điệp tích cực hôm nay">🦋 Thông điệp hôm nay</button>
+      <button id="teacherBtn" class="tool-btn teacher">🔐 Góc giáo viên</button>
+      <span id="syncStatus" class="sync-status local">💻 Chế độ cục bộ</span>
+      <button id="exportBtn" class="tool-btn admin-only hidden">⬇️ Sao lưu dữ liệu</button>
+      <button id="migrateCloudBtn" class="tool-btn admin-only hidden">☁️ Đồng bộ dữ liệu máy này lên Firestore</button>
+      <button id="lockGateBtn" class="tool-btn admin-only hidden">🔒 Khóa lại cổng lớp</button>
+      <label class="tool-btn admin-only hidden file-label">
+        ⬆️ Khôi phục dữ liệu
+        <input id="importInput" type="file" accept=".json" hidden>
+      </label>
+      <button id="resetAllBtn" class="tool-btn danger admin-only hidden">↺ Đặt lại vườn</button>
+    </section>
+
+    <section class="garden-wrap">
+
+      <div id="sceneLayer" class="scene-layer" aria-hidden="true">
+        <div id="sunEl" class="scene-sun">☀️</div>
+        <div id="moonEl" class="scene-moon">🌙</div>
+        <div id="rainbowEl" class="scene-rainbow">🌈</div>
+        <div id="starField" class="scene-stars"></div>
+        <div id="cloudField" class="scene-clouds"></div>
+        <div id="rainField" class="scene-rain"></div>
+        <div id="sceneStatus" class="scene-status">🌤 Trời nắng</div>
+      </div>
+
+      <div class="cloud cloud-a">☁️</div>
+      <div class="cloud cloud-b">☁️</div>
+      <div class="butterfly b1">🦋</div>
+      <div class="butterfly b2">🦋</div>
+      <div id="garden" class="garden" aria-label="Vườn hoa 40 học sinh"></div>
+      <div class="ground"></div>
+    </section>
+
+    <section class="legend">
+      <div><span class="dot stage1"></span> Mầm non</div>
+      <div><span class="dot stage2"></span> Cây nhỏ</div>
+      <div><span class="dot stage3"></span> Chớm nụ</div>
+      <div><span class="dot stage4"></span> Nở hoa</div>
+      <div><span class="dot stage5"></span> Rực rỡ</div>
+      <div><span class="wilt-icon">🍂</span> Cần được chăm sóc thêm</div>
+    </section>
+  </main>
+
+  <!-- Student detail modal -->
+  <div id="studentModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card student-card">
+      <button class="close-btn" data-close="studentModal">✕</button>
+
+      <div class="student-preview">
+        <div id="modalFlower" class="big-flower"></div>
+      </div>
+
+      <div class="student-info">
+        <div class="name-row">
+          <input id="studentNameInput" class="name-input" maxlength="40" />
+          <span id="stageBadge" class="stage-badge"></span>
+        </div>
+
+        <div class="teacher-message-wrap">
+          <div class="teacher-message-label">💌 Lời nhắn từ cô Lâm Mỹ Niên</div>
+          <p id="studentMessage" class="student-message"></p>
+        </div>
+
+        <div id="stats" class="stats"></div>
+        <div id="badges" class="badges"></div>
+
+        <div class="photo-actions admin-only hidden">
+          <label class="upload-btn">
+            📷 Tải ảnh học sinh
+            <input id="photoInput" type="file" accept="image/*" hidden>
+          </label>
+          <button id="removePhotoBtn" class="secondary-btn">Xóa ảnh</button>
+        </div>
+
+        <div class="teacher-panel admin-only hidden">
+          <h3>💧 Ghi nhận hôm nay</h3>
+          <div class="reason-grid" id="reasonGrid"></div>
+          <div class="score-actions">
+            <button id="waterBtn" class="primary-btn">💧 Tưới nước +1</button>
+            <button id="plusTwoBtn" class="secondary-btn">💧💧 +2</button>
+            <button id="minusBtn" class="danger-btn">🍂 Cần chăm sóc −1</button>
+            <button id="undoBtn" class="secondary-btn">↩ Hoàn tác</button>
+          </div>
+
+          <div class="note-box">
+            <label for="noteInput">Lời nhắn ngắn</label>
+            <textarea id="noteInput" rows="2" maxlength="120" placeholder="Ví dụ: Hôm nay con đã rất cố gắng!"></textarea>
+            <button id="saveNoteBtn" class="secondary-btn">💾 Lưu lời nhắn</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Teacher login -->
+  <div id="loginModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card small-card">
+      <button class="close-btn" data-close="loginModal">✕</button>
+      <h2>🔐 Góc giáo viên</h2>
+
+      <div id="firebaseLoginArea">
+        <p class="login-intro">Đăng nhập tài khoản giáo viên Firebase để cập nhật khu vườn dùng chung.</p>
+        <label class="login-label">Email giáo viên</label>
+        <input id="teacherEmailInput" type="email" autocomplete="username" placeholder="giaovien@example.com" />
+        <label class="login-label">Mật khẩu</label>
+        <input id="teacherPasswordInput" type="password" autocomplete="current-password" placeholder="Mật khẩu Firebase" />
+        <button id="loginBtn" class="primary-btn full">☁️ Đăng nhập Firebase</button>
+      </div>
+
+      <div class="login-divider"><span>hoặc</span></div>
+
+      <details class="demo-login">
+        <summary>Chỉ thử trên máy này</summary>
+        <p class="hint">Chế độ thử không đồng bộ cho phụ huynh/học sinh.</p>
+        <input id="pinInput" type="password" inputmode="numeric" maxlength="8" placeholder="PIN thử nghiệm" />
+        <button id="localLoginBtn" class="secondary-btn full">💻 Mở chế độ thử</button>
+        <p class="hint">PIN thử mặc định: <strong>3300</strong>.</p>
+      </details>
+    </div>
+  </div>
+
+  <!-- Confirmation modal -->
+  <div id="confirmModal" class="modal hidden">
+    <div class="modal-card small-card">
+      <h2>Đặt lại toàn bộ vườn?</h2>
+      <p>Tất cả điểm, ảnh, lời nhắn và nhật ký lưu trên trình duyệt này sẽ bị xóa.</p>
+      <div class="confirm-actions">
+        <button id="cancelResetBtn" class="secondary-btn">Hủy</button>
+        <button id="confirmResetBtn" class="danger-btn">Xóa toàn bộ</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gardenCelebration" class="garden-celebration hidden" aria-hidden="true">
+    <div id="milestoneSky" class="milestone-sky"></div>
+    <div id="milestoneMainIcon" class="milestone-main-icon">✨</div>
+
+    <div id="celebrationTitle" class="celebration-title">
+      <div id="celebrateBig" class="celebrate-big">Khu vườn đang lớn lên!</div>
+      <div id="celebrateSmall" class="celebrate-small"></div>
+    </div>
+
+    <div id="petalRain" class="petal-rain"></div>
+    <div id="flyingFriends" class="celebration-butterflies"></div>
+  </div>
+
+  
+  <!-- Thông điệp tích cực mỗi ngày từ Nàng tiên Bướm -->
+  <div id="fairyMessageOverlay" class="fairy-message-overlay hidden" aria-hidden="true">
+    <div class="fairy-flight-path">
+      <div id="butterflyFairy" class="butterfly-fairy" aria-hidden="true">
+        <span class="fairy-wing wing-left">🦋</span>
+        <span class="fairy-person">🧚‍♀️</span>
+        <span class="fairy-sparkle s1">✨</span>
+        <span class="fairy-sparkle s2">⭐</span>
+        <span class="fairy-sparkle s3">✨</span>
+      </div>
+    </div>
+
+    <div id="dailyMessageCard" class="daily-message-card">
+      <button id="dailyMessageClose" class="daily-message-close" aria-label="Đóng thông điệp">✕</button>
+      <div class="message-badge">🦋 THÔNG ĐIỆP HÔM NAY</div>
+      <div class="message-date" id="dailyMessageDate"></div>
+      <div class="message-quote-mark">“</div>
+      <p id="dailyMessageText" class="daily-message-text"></p>
+      <div class="message-signature">
+        <span>✨</span>
+        <div>
+          <strong>Nàng tiên Bướm</strong>
+          <small>Gửi đến 40 bông hoa lớp 3.3</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Chatbot lớp 3.3 -->
+  <button id="chatFab" class="chat-fab" aria-label="Mở trợ lý lớp 3.3">💬</button>
+
+  <aside id="chatPanel" class="chat-panel hidden" aria-label="Trợ lý lớp 3.3">
+    <div class="chat-header">
+      <div>
+        <strong>🌱 Trợ lý Vườn hoa 3.3</strong>
+        <small>Hỏi về khu vườn, điểm, lời nhắn hoặc hoạt động của lớp</small>
+      </div>
+      <button id="chatClose" class="chat-close">✕</button>
+    </div>
+
+    <div id="chatMessages" class="chat-messages">
+      <div class="chat-msg bot">
+        <div class="bubble">Chào bạn! Mình là trợ lý của Vườn hoa lớp 3.3. Bạn muốn hỏi điều gì?</div>
+      </div>
+    </div>
+
+    <div class="chat-suggestions">
+      <button data-chatq="Làm sao để hoa lớn lên?">Hoa lớn thế nào?</button>
+      <button data-chatq="Bình nước của lớp dùng để làm gì?">Bình nước là gì?</button>
+      <button data-chatq="Làm sao xem lời nhắn của cô?">Xem lời nhắn</button>
+    </div>
+
+    <form id="chatForm" class="chat-form">
+      <input id="chatInput" autocomplete="off" maxlength="300" placeholder="Nhập câu hỏi..." />
+      <button type="submit">Gửi</button>
+    </form>
+  </aside>
+
+<audio id="customMusic" loop preload="metadata" src="music/music.mp3"></audio>
+  <div id="toast" class="toast"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

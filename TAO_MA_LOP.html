@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tạo mã lớp – Vườn hoa 3.3</title>
+<style>
+body{font-family:Arial,sans-serif;background:#eff9ef;margin:0;padding:30px;color:#334}
+.card{max-width:680px;margin:auto;background:white;border-radius:20px;padding:24px;box-shadow:0 12px 40px #0002}
+input,button,textarea{font:inherit}
+input{width:100%;box-sizing:border-box;padding:12px;border:1px solid #ccd;border-radius:10px}
+button{margin-top:10px;padding:11px 16px;border:0;border-radius:10px;background:#68a873;color:white;font-weight:bold}
+textarea{width:100%;box-sizing:border-box;margin-top:12px;height:110px;padding:10px;border:1px solid #ccd;border-radius:10px}
+small{line-height:1.5;color:#667}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>🔐 Tạo Mã lớp 3.3</h1>
+<p>Nhập mã cô muốn dùng. Trang này chỉ tạo SHA-256 ngay trên máy, không gửi mã đi đâu.</p>
+<input id="code" type="password" placeholder="Ví dụ: Hoa33@2026">
+<button id="make">Tạo SHA-256</button>
+<textarea id="out" readonly placeholder="Chuỗi SHA-256 sẽ hiện ở đây"></textarea>
+<small>Copy chuỗi này và dán vào <b>firebase-config.js</b> tại <code>window.VUONHOA_CLASS_ACCESS_CODE_HASH = "..."</code>.</small>
+</div>
+<script>
+async function sha256Hex(text){
+ const data=new TextEncoder().encode(text);
+ const digest=await crypto.subtle.digest("SHA-256",data);
+ return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+document.getElementById("make").onclick=async()=>{
+ const v=document.getElementById("code").value.trim();
+ if(!v)return alert("Hãy nhập mã lớp.");
+ document.getElementById("out").value=await sha256Hex(v);
+};
+</script>
+</body>
+</html>
