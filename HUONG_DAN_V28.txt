@@ -1,0 +1,17 @@
+V28 - CHỈ THAY 3 FILE
+
+Upload 3 file sau vào THƯ MỤC GỐC repository vuon-hoa-lop-33:
+- index.html
+- script.js
+- style.css
+
+Cho GitHub ghi đè file cũ rồi Commit changes.
+
+Sau khi GitHub Pages deploy:
+1. Mở website.
+2. Ctrl + F5.
+3. Đăng nhập Góc giáo viên.
+4. Cô sẽ thấy dòng “🧪 Thử hiệu ứng”.
+5. Bấm lần lượt ☀️25, 🦋50, 🌸75, 🌈100.
+   Các nút này KHÔNG cộng điểm, chỉ để kiểm tra hiệu ứng.
+6. Khi test ổn, hiệu ứng thật sẽ tự chạy khi Bình nước vượt qua 25/50/75/100.

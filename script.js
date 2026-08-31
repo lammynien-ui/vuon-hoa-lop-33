@@ -369,56 +369,82 @@ function renderGarden(){
   renderGoal();
 }
 
+function getGardenTotal(){
+  return state.students.reduce(
+    (sum,st)=>sum+Math.max(0,Number(st.score)||0),
+    0
+  );
+}
+
 function renderGoal(){
-  const total = state.students.reduce((s,x)=>s+Math.max(0,x.score),0);
-  const completed = Math.floor(total / GOAL_TARGET);
-  const progress = total % GOAL_TARGET;
+  const total=getGardenTotal();
+  const progress=total%GOAL_TARGET;
 
-  // 100, 200, 300... vẫn hiển thị 100/100 trước khi sang bình tiếp theo.
-  const displayProgress = (total > 0 && progress === 0) ? GOAL_TARGET : progress;
-  const fillPercent = Math.min(100,(displayProgress/GOAL_TARGET)*100);
+  // Đúng lúc 100, 200, 300... vẫn hiện 100/100 trước khi sang bình tiếp.
+  const displayProgress=(total>0 && progress===0)?GOAL_TARGET:progress;
+  const fillPercent=Math.min(100,(displayProgress/GOAL_TARGET)*100);
 
-  goalPoints.textContent = displayProgress;
-  goalFill.style.width = `${fillPercent}%`;
+  goalPoints.textContent=displayProgress;
+  goalFill.style.width=`${fillPercent}%`;
 
-  const tank = document.getElementById("tankWater");
-  if(tank) tank.style.height = `${fillPercent}%`;
+  const tank=document.getElementById("tankWater");
+  if(tank) tank.style.height=`${fillPercent}%`;
 
-  document.getElementById("celebrationCount").textContent = state.celebrations || 0;
+  document.getElementById("celebrationCount").textContent=
+    Number(state.celebrations||0);
+}
 
-  // 25 / 50 / 75 / 100 giọt.
-  const milestoneTotal = Math.floor(total / 25) * 25;
+/*
+  V28:
+  Phát hiện mốc dựa vào việc THỰC SỰ đi qua mốc giữa
+  tổng điểm trước và sau thao tác.
+  Không dùng lastMilestoneTotal để chặn hiệu ứng nữa.
+*/
+function getCrossedMilestone(beforeTotal,afterTotal){
+  if(afterTotal<=beforeTotal) return null;
 
-  if(milestoneTotal > 0 && milestoneTotal > (state.lastMilestoneTotal || 0)){
-    state.lastMilestoneTotal = milestoneTotal;
+  const firstQuarter=Math.floor(beforeTotal/25)+1;
+  const lastQuarter=Math.floor(afterTotal/25);
 
-    const inBottle = milestoneTotal % GOAL_TARGET;
-    const level = inBottle === 0 ? 100 : inBottle;
+  if(lastQuarter<firstQuarter) return null;
 
-    if(level === 100){
-      state.celebrations = Math.max(
-        Number(state.celebrations || 0),
-        Math.floor(milestoneTotal / GOAL_TARGET)
-      );
-      document.getElementById("celebrationCount").textContent = state.celebrations;
-    }
+  const milestoneTotal=lastQuarter*25;
+  const remainder=milestoneTotal%GOAL_TARGET;
+  const level=remainder===0?100:remainder;
 
-    const event = {
-      id: `${milestoneTotal}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
-      total: milestoneTotal,
-      level,
-      celebrations: Number(state.celebrations || 0),
-      at: Date.now()
-    };
+  return {milestoneTotal,level};
+}
 
-    state.lastMilestoneEvent = event;
+function createMilestoneEvent(beforeTotal,afterTotal){
+  const crossed=getCrossedMilestone(beforeTotal,afterTotal);
+  if(!crossed) return null;
 
-    // Máy vừa tạo mốc tự chạy ngay; snapshot Firestore sau đó sẽ không chạy lặp.
-    lastSeenMilestoneEventId = event.id;
+  const {milestoneTotal,level}=crossed;
 
-    saveState();
-    setTimeout(()=>triggerGardenMilestone(level,event.celebrations),180);
+  if(level===100){
+    state.celebrations=Math.max(
+      Number(state.celebrations||0),
+      Math.floor(milestoneTotal/GOAL_TARGET)
+    );
   }
+
+  // Chỉ lưu để đồng bộ/ghi nhận, KHÔNG dùng biến này để chặn hiệu ứng.
+  state.lastMilestoneTotal=Math.max(
+    Number(state.lastMilestoneTotal||0),
+    milestoneTotal
+  );
+
+  const event={
+    id:`${milestoneTotal}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+    total:milestoneTotal,
+    level,
+    celebrations:Number(state.celebrations||0),
+    at:Date.now()
+  };
+
+  state.lastMilestoneEvent=event;
+  lastSeenMilestoneEventId=event.id;
+  return event;
 }
 
 
@@ -631,6 +657,21 @@ function receiveCloudMilestoneEvent(event){
     180
   );
 }
+
+
+document.querySelectorAll("[data-test-milestone]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    if(!isTeacher) return;
+
+    const level=Number(btn.dataset.testMilestone);
+    unlockFxAudio();
+
+    triggerGardenMilestone(
+      level,
+      Math.max(1,Number(state.celebrations||0))
+    );
+  });
+});
 
 function openStudent(id){
   selectedStudentId=id;
@@ -896,10 +937,13 @@ document.getElementById("studentNameInput").addEventListener("change",e=>{
 
 function addScore(delta){
   if(!isTeacher) return;
+
   const st=getSelected();
   if(!st) return;
 
+  const beforeGardenTotal=getGardenTotal();
   const before=st.score;
+
   st.score=Math.max(0,st.score+delta);
 
   if(delta>0){
@@ -912,20 +956,37 @@ function addScore(delta){
   st.history.push({
     time:new Date().toISOString(),
     delta,
-    reason: delta>0 ? selectedReason : "Cần được chăm sóc thêm",
+    reason:delta>0?selectedReason:"Cần được chăm sóc thêm",
     before,
     after:st.score
   });
+
+  const afterGardenTotal=getGardenTotal();
+
+  // Mốc được xác định từ tổng điểm TRƯỚC/Sau thao tác,
+  // không phụ thuộc metadata cũ trong Firestore.
+  const milestoneEvent=delta>0
+    ? createMilestoneEvent(beforeGardenTotal,afterGardenTotal)
+    : null;
 
   saveState();
   renderGarden();
   openStudent(st.id);
 
-  // Chạy sau render để hiệu ứng không bị xóa ngay.
   requestAnimationFrame(()=>{
     animateWater(st.id,delta);
     playScoreSound(delta);
   });
+
+  if(milestoneEvent){
+    // Đợi modal/hoa render xong rồi phủ hiệu ứng lên toàn màn hình.
+    setTimeout(()=>{
+      triggerGardenMilestone(
+        Number(milestoneEvent.level),
+        Number(milestoneEvent.celebrations||0)
+      );
+    },300);
+  }
 }
 
 document.getElementById("waterBtn").addEventListener("click",()=>addScore(1));

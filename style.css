@@ -2933,3 +2933,48 @@ body.party-100 .flower-head{
     filter:saturate(1.30) brightness(1.10)
   }
 }
+
+
+/* ============================================================
+   V28 – BẢNG THỬ HIỆU ỨNG (CHỈ GIÁO VIÊN)
+   ============================================================ */
+.milestone-test-panel{
+  width:min(1080px,calc(100% - 48px));
+  margin:0 auto 12px;
+  padding:9px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:wrap;
+  border:1px dashed rgba(76,124,84,.30);
+  border-radius:16px;
+  background:rgba(255,255,255,.80);
+  color:#46604d;
+  box-shadow:0 7px 20px rgba(60,88,65,.06);
+}
+.milestone-test-panel strong{
+  font-size:11.5px;
+}
+.milestone-test-panel button{
+  border:1px solid #d6e5d5;
+  border-radius:999px;
+  background:#fff;
+  padding:6px 10px;
+  color:#3f5b46;
+  font-weight:900;
+  cursor:pointer;
+}
+.milestone-test-panel button:hover{
+  transform:translateY(-1px);
+  background:#f4fbf2;
+}
+.milestone-test-panel small{
+  color:#7a857d;
+  font-size:10px;
+}
+@media(max-width:720px){
+  .milestone-test-panel{
+    width:calc(100% - 24px);
+  }
+}
