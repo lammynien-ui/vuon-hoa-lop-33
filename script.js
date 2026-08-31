@@ -1472,9 +1472,64 @@ async function sha256Hex(text){
     return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,"0")).join("");
   }
 
-  // Fallback only for older/file browsers: simple comparison cannot verify custom hash.
-  // We deliberately do not keep a plaintext access code in the source.
-  throw new Error("Trình duyệt này không hỗ trợ xác minh mã an toàn.");
+  // Pure-JS fallback SHA-256 để Cổng lớp vẫn hoạt động nếu WebCrypto bị chặn.
+  function rightRotate(value,amount){return (value>>>amount)|(value<<(32-amount));}
+  const maxWord=Math.pow(2,32);
+  let result="";
+  const words=[];
+  const ascii=unescape(encodeURIComponent(String(text)));
+  const asciiBitLength=ascii.length*8;
+  let hash=sha256Hex.h=sha256Hex.h||[];
+  let k=sha256Hex.k=sha256Hex.k||[];
+  let primeCounter=k.length;
+  const isComposite={};
+  for(let candidate=2; primeCounter<64; candidate++){
+    if(!isComposite[candidate]){
+      for(let i=0;i<313;i+=candidate) isComposite[i]=candidate;
+      hash[primeCounter]=(Math.pow(candidate,.5)*maxWord)|0;
+      k[primeCounter++]=(Math.pow(candidate,1/3)*maxWord)|0;
+    }
+  }
+  let msg=ascii+"\x80";
+  while(msg.length%64-56) msg+="\x00";
+  for(let i=0;i<msg.length;i++){
+    const j=msg.charCodeAt(i);
+    words[i>>2]|=j<<((3-i)%4)*8;
+  }
+  words[words.length]=((asciiBitLength/maxWord)|0);
+  words[words.length]=asciiBitLength;
+  for(let j=0;j<words.length;){
+    const w=words.slice(j,j+=16);
+    const oldHash=hash.slice(0);
+    hash=hash.slice(0,8);
+    for(let i=0;i<64;i++){
+      const w15=w[i-15],w2=w[i-2];
+      const a=hash[0],e=hash[4];
+      const temp1=hash[7]
+        +(rightRotate(e,6)^rightRotate(e,11)^rightRotate(e,25))
+        +((e&hash[5])^((~e)&hash[6]))
+        +k[i]
+        +(w[i]=(i<16)?w[i]:(
+          w[i-16]
+          +(rightRotate(w15,7)^rightRotate(w15,18)^(w15>>>3))
+          +w[i-7]
+          +(rightRotate(w2,17)^rightRotate(w2,19)^(w2>>>10))
+        )|0);
+      const temp2=(rightRotate(a,2)^rightRotate(a,13)^rightRotate(a,22))
+        +((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+      hash=[(temp1+temp2)|0].concat(hash);
+      hash[4]=(hash[4]+temp1)|0;
+      hash.pop();
+    }
+    for(let i=0;i<8;i++) hash[i]=(hash[i]+oldHash[i])|0;
+  }
+  for(let i=0;i<8;i++){
+    for(let j=3;j+1;j--){
+      const b=(hash[i]>>(j*8))&255;
+      result+=(b<16?"0":"")+b.toString(16);
+    }
+  }
+  return result;
 }
 
 function gateSessionIsOpen(){
@@ -1506,6 +1561,8 @@ async function verifyClassGate(){
   const error=document.getElementById("classGateError");
   const card=document.querySelector(".class-gate-card");
   if(!input || !error) return;
+
+  error.textContent="";
 
   const now=Date.now();
   if(now < classGateLockedUntil){
@@ -2005,11 +2062,29 @@ function applyWeatherMode(mode, announce=true){
   }
 }
 
-renderGarden();
-refreshAdminVisibility();
-loadMusicFromDB();
-initWeatherSystem();
-initDailyFairyMessage();
-initFirebaseSync();
-initClassGate();
-startSceneCycle();
+// =========================================================
+// V22 – KHỞI TẠO AN TOÀN
+// Cổng Mã lớp phải hoạt động độc lập với mọi module khác.
+// =========================================================
+function safeInit(label, fn){
+  try{
+    const result=fn();
+    if(result && typeof result.catch==="function"){
+      result.catch(err=>console.error(`[V22] ${label}:`,err));
+    }
+  }catch(err){
+    console.error(`[V22] ${label}:`,err);
+  }
+}
+
+// Khởi tạo Cổng lớp ĐẦU TIÊN.
+// Vì vậy lỗi nhạc, Firebase, thời tiết... không thể làm nút Vào khu vườn bị đơ.
+safeInit("Class Gate", initClassGate);
+
+safeInit("Garden render", renderGarden);
+safeInit("Admin visibility", refreshAdminVisibility);
+safeInit("Music", loadMusicFromDB);
+safeInit("Weather", initWeatherSystem);
+safeInit("Daily fairy", initDailyFairyMessage);
+safeInit("Firebase", initFirebaseSync);
+safeInit("Scene cycle", startSceneCycle);

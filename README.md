@@ -321,3 +321,11 @@ Nếu triển khai công khai trên Internet và cần quản lý thật, nên d
 - Không autoplay: người dùng bấm Bật nhạc một lần theo chính sách trình duyệt.
 - Âm thanh tưới nước, cộng/trừ điểm của V20 hoạt động riêng.
 - Xóa cơ chế nhạc cục bộ cũ để tránh ghi đè bài Trúc An.
+
+
+## V22 – Sửa lỗi không vào được bằng Mã lớp
+- Mã lớp mặc định hiện tại vẫn là `33-2026`.
+- Khởi tạo Cổng lớp trước tất cả module khác.
+- Lỗi nhạc/Firebase/thời tiết/chatbot không còn làm nút `Vào khu vườn` bị đơ.
+- Mỗi module được khởi tạo độc lập bằng `safeInit`.
+- Thêm SHA-256 fallback bằng JavaScript nếu WebCrypto của trình duyệt bị chặn.
