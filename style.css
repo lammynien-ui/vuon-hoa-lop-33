@@ -2589,3 +2589,106 @@ body.gate-locked > *:not(.class-gate){
   max-width:190px;
   min-height:42px;
 }
+
+
+/* V21 – nút bật/tắt nhạc */
+#soundBtn.music-on{
+  box-shadow:0 0 0 3px rgba(116,185,122,.18),0 8px 22px rgba(62,113,70,.16);
+}
+
+
+/* ============================================================
+   V25 – NHẠC CHỈ TRÊN MÁY GIÁO VIÊN
+   ============================================================ */
+#soundBtn.music-on{
+  box-shadow:0 0 0 3px rgba(116,185,122,.18),0 8px 22px rgba(62,113,70,.16);
+}
+#soundBtn:disabled{
+  opacity:.7;
+  cursor:not-allowed;
+}
+
+
+/* ============================================================
+   V26 FINAL – TRÌNH PHÁT NHẠC NATIVE CHỈ CHO GIÁO VIÊN
+   ============================================================ */
+.teacher-music-panel{
+  width:min(1080px,calc(100% - 48px));
+  margin:0 auto 14px;
+  padding:12px 14px;
+  border-radius:20px;
+  background:rgba(255,255,255,.82);
+  border:1px solid rgba(81,121,88,.18);
+  box-shadow:0 8px 24px rgba(55,87,66,.08);
+  backdrop-filter:blur(10px);
+}
+.teacher-music-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.teacher-music-head > div{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.teacher-music-head strong{
+  color:#365840;
+  font-size:14px;
+}
+.teacher-music-head small{
+  color:#738078;
+  font-size:10.5px;
+}
+.teacher-music-upload{
+  cursor:pointer;
+  border-radius:999px;
+  padding:9px 13px;
+  font-size:12px;
+  font-weight:900;
+  background:#eaf6e8;
+  color:#35543d;
+  border:1px solid #cfe5ce;
+}
+.teacher-music-empty{
+  margin-top:9px;
+  padding:8px 10px;
+  border-radius:12px;
+  background:#f6f8f3;
+  color:#768077;
+  font-size:11px;
+}
+.teacher-music-now{
+  margin-top:9px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  color:#405744;
+  font-size:11.5px;
+}
+.teacher-music-remove{
+  border:0;
+  border-radius:999px;
+  padding:6px 10px;
+  cursor:pointer;
+  background:#fff0ed;
+  color:#9c524a;
+  font-weight:800;
+  font-size:10.5px;
+}
+.teacher-native-audio{
+  width:100%;
+  height:44px;
+  margin-top:8px;
+}
+@media(max-width:720px){
+  .teacher-music-panel{
+    width:calc(100% - 24px);
+  }
+  .teacher-music-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}

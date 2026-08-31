@@ -59,20 +59,10 @@ let selectedStudentId = null;
 let selectedReason = reasons[0][1];
 let soundOn = true;
 let soundEffectsOn = localStorage.getItem("vuonhoa33_fx") !== "off";
-let musicPlaying = false;
-let musicCtx = null;
 let fxCtx = null;
-let usingFallbackMusic = false;
 
 const customMusic = document.getElementById("customMusic");
-const SHARED_MUSIC_PATH = "music/music.mp3";
-const FALLBACK_MUSIC_PATH = "music/default-garden.wav";
-
-if(customMusic){
-  customMusic.volume = 0.34;
-  customMusic.src = SHARED_MUSIC_PATH;
-  customMusic.load();
-}
+let teacherMusicUrl = null;
 
 
 /* Firebase V14 */
@@ -958,147 +948,95 @@ function animateWater(studentId,delta){
   setTimeout(()=>layer.remove(),1250);
 }
 
-function switchToFallbackMusic(){
-  if(!customMusic || usingFallbackMusic || customMusic.dataset.objectUrl) return;
-  usingFallbackMusic=true;
-  customMusic.src=FALLBACK_MUSIC_PATH;
-  customMusic.load();
-  const btn=document.getElementById("soundBtn");
-  if(btn) btn.textContent="🎵 Phát nhạc";
+/* =========================================================
+   V26 FINAL – NHẠC CHỈ TRÊN MÁY GIÁO VIÊN
+   Dùng trình phát audio native của trình duyệt.
+   ========================================================= */
+
+function clearTeacherMusicUrl(){
+  if(teacherMusicUrl){
+    try{ URL.revokeObjectURL(teacherMusicUrl); }catch(e){}
+    teacherMusicUrl=null;
+  }
 }
 
-customMusic?.addEventListener("error",()=>{
-  if(!usingFallbackMusic && !customMusic.dataset.objectUrl){
-    switchToFallbackMusic();
-  }else{
-    const btn=document.getElementById("soundBtn");
-    if(btn) btn.textContent="🎵 Nhạc chưa sẵn sàng";
+function resetTeacherMusicPlayer(){
+  if(customMusic){
+    customMusic.pause();
+    customMusic.removeAttribute("src");
+    customMusic.load();
+    customMusic.classList.add("hidden");
   }
-});
 
-customMusic?.addEventListener("canplay",()=>{
-  const btn=document.getElementById("soundBtn");
-  if(btn && customMusic.paused){
-    btn.textContent="🎵 Phát nhạc";
-  }
-});
+  clearTeacherMusicUrl();
 
-document.getElementById("effectsBtn")?.addEventListener("click",()=>{
-  soundEffectsOn=!soundEffectsOn;
-  localStorage.setItem("vuonhoa33_fx",soundEffectsOn?"on":"off");
-  updateEffectsButton();
-  if(soundEffectsOn){
-    playWaterDrop(0);
-    playPositiveChime(0.08);
-    toast("Đã bật âm thanh hiệu ứng.");
-  }else{
-    toast("Đã tắt âm thanh hiệu ứng.");
-  }
-});
+  document.getElementById("teacherMusicEmpty")?.classList.remove("hidden");
+  document.getElementById("teacherMusicNow")?.classList.add("hidden");
 
-document.getElementById("soundBtn").addEventListener("click", async ()=>{
-  if(!customMusic) return;
+  const name=document.getElementById("teacherMusicName");
+  if(name) name.textContent="Bài nhạc";
+}
 
-  try{
-    // Thao tác click của người dùng cho phép trình duyệt phát audio.
-    if(customMusic.paused){
-      await customMusic.play();
-      musicPlaying=true;
-      document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
-      toast(usingFallbackMusic ? "Đang phát nhạc khu vườn dự phòng." : "Đang phát nhạc nền của lớp.");
-    }else{
-      customMusic.pause();
-      musicPlaying=false;
-      document.getElementById("soundBtn").textContent="🎵 Phát nhạc";
-    }
-  }catch(e){
-    console.error("Background music:",e);
+document.getElementById("musicInput")?.addEventListener("change", e=>{
+  if(!isTeacher) return;
 
-    // Nếu file MP3 của lớp lỗi/chưa có thì chuyển ngay sang bản dự phòng.
-    if(!usingFallbackMusic && !customMusic.dataset.objectUrl){
-      switchToFallbackMusic();
-      try{
-        await customMusic.play();
-        musicPlaying=true;
-        document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
-        toast("File nhạc của lớp chưa đọc được nên đang phát nhạc khu vườn dự phòng.");
-        return;
-      }catch(e2){
-        console.error("Fallback music:",e2);
-      }
-    }
-
-    toast("Trình duyệt chưa cho phép phát nhạc. Hãy bấm lại nút Phát nhạc.");
-  }
-});
-
-// Chọn nhạc chỉ để nghe thử trên thiết bị giáo viên.
-// Muốn PH/HS cùng nghe, upload bài hát với tên music/music.mp3 lên GitHub.
-document.getElementById("musicInput").addEventListener("change", async e=>{
   const file=e.target.files?.[0];
+  e.target.value="";
   if(!file) return;
 
-  if(!file.type.startsWith("audio/")){
-    toast("Vui lòng chọn file âm thanh.");
+  const fileName=(file.name||"").toLowerCase();
+  const supported =
+    (file.type && file.type.startsWith("audio/")) ||
+    /\.(mp3|wav|m4a|aac|ogg|webm)$/i.test(fileName);
+
+  if(!supported){
+    toast("Vui lòng chọn file nhạc MP3 hoặc định dạng âm thanh thông dụng.");
     return;
   }
 
   try{
-    setMusicFile(file);
-    await customMusic.play();
-    musicPlaying=true;
-    document.getElementById("soundBtn").textContent="⏸️ Tạm dừng nhạc";
-    toast("Đang nghe thử bài nhạc trên thiết bị này.");
+    if(!customMusic) throw new Error("Không tìm thấy trình phát nhạc.");
+
+    customMusic.pause();
+    clearTeacherMusicUrl();
+
+    teacherMusicUrl=URL.createObjectURL(file);
+    customMusic.src=teacherMusicUrl;
+    customMusic.loop=true;
+    customMusic.volume=0.65;
+    customMusic.classList.remove("hidden");
+    customMusic.load();
+
+    document.getElementById("teacherMusicEmpty")?.classList.add("hidden");
+    document.getElementById("teacherMusicNow")?.classList.remove("hidden");
+
+    const name=document.getElementById("teacherMusicName");
+    if(name) name.textContent=file.name;
+
+    customMusic.play()
+      .then(()=>toast("Đang phát nhạc trên máy giáo viên."))
+      .catch(err=>{
+        console.warn("Audio play after file pick:",err);
+        toast("Đã tải bài nhạc. Cô bấm nút ▶ trên thanh phát nhạc để nghe.");
+      });
+
   }catch(err){
-    console.error(err);
-    toast("Không thể mở bài nhạc này.");
-  }finally{
-    e.target.value="";
+    console.error("Teacher local audio:",err);
+    resetTeacherMusicPlayer();
+    toast("Không mở được file nhạc này.");
   }
 });
 
-function setMusicFile(file){
-  if(customMusic.dataset.objectUrl){
-    URL.revokeObjectURL(customMusic.dataset.objectUrl);
-  }
-  const url=URL.createObjectURL(file);
-  customMusic.src=url;
-  customMusic.dataset.objectUrl=url;
-  usingFallbackMusic=false;
-  customMusic.load();
-  document.getElementById("soundBtn").textContent="🎵 Phát nhạc";
-}
+document.getElementById("teacherMusicRemove")?.addEventListener("click",()=>{
+  if(!isTeacher) return;
+  resetTeacherMusicPlayer();
+  toast("Đã bỏ bài nhạc khỏi phiên làm việc.");
+});
 
-updateEffectsButton();
-
-function openMusicDB(){
-  return new Promise((resolve,reject)=>{
-    const req = indexedDB.open("vuonhoa33_music_db",1);
-    req.onupgradeneeded = ()=>{
-      const db=req.result;
-      if(!db.objectStoreNames.contains("music")){
-        db.createObjectStore("music");
-      }
-    };
-    req.onsuccess=()=>resolve(req.result);
-    req.onerror=()=>reject(req.error);
-  });
-}
-
-async function saveMusicToDB(file){
-  const db=await openMusicDB();
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction("music","readwrite");
-    tx.objectStore("music").put(file,"backgroundMusic");
-    tx.oncomplete=()=>resolve();
-    tx.onerror=()=>reject(tx.error);
-  });
-}
-
-async function loadMusicFromDB(){
-  // V16: nhạc dùng chung được đọc từ music/music.mp3.
-  return;
-}
+customMusic?.addEventListener("error",()=>{
+  console.warn("Native audio error:",customMusic.error);
+  toast("Trình duyệt không đọc được file nhạc này. Hãy thử một file MP3 khác.");
+});
 
 /* =========================================================
    CHATBOT VƯỜN HOA 3.3
@@ -1496,9 +1434,64 @@ async function sha256Hex(text){
     return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,"0")).join("");
   }
 
-  // Fallback only for older/file browsers: simple comparison cannot verify custom hash.
-  // We deliberately do not keep a plaintext access code in the source.
-  throw new Error("Trình duyệt này không hỗ trợ xác minh mã an toàn.");
+  // Pure-JS fallback SHA-256 để Cổng lớp vẫn hoạt động nếu WebCrypto bị chặn.
+  function rightRotate(value,amount){return (value>>>amount)|(value<<(32-amount));}
+  const maxWord=Math.pow(2,32);
+  let result="";
+  const words=[];
+  const ascii=unescape(encodeURIComponent(String(text)));
+  const asciiBitLength=ascii.length*8;
+  let hash=sha256Hex.h=sha256Hex.h||[];
+  let k=sha256Hex.k=sha256Hex.k||[];
+  let primeCounter=k.length;
+  const isComposite={};
+  for(let candidate=2; primeCounter<64; candidate++){
+    if(!isComposite[candidate]){
+      for(let i=0;i<313;i+=candidate) isComposite[i]=candidate;
+      hash[primeCounter]=(Math.pow(candidate,.5)*maxWord)|0;
+      k[primeCounter++]=(Math.pow(candidate,1/3)*maxWord)|0;
+    }
+  }
+  let msg=ascii+"\x80";
+  while(msg.length%64-56) msg+="\x00";
+  for(let i=0;i<msg.length;i++){
+    const j=msg.charCodeAt(i);
+    words[i>>2]|=j<<((3-i)%4)*8;
+  }
+  words[words.length]=((asciiBitLength/maxWord)|0);
+  words[words.length]=asciiBitLength;
+  for(let j=0;j<words.length;){
+    const w=words.slice(j,j+=16);
+    const oldHash=hash.slice(0);
+    hash=hash.slice(0,8);
+    for(let i=0;i<64;i++){
+      const w15=w[i-15],w2=w[i-2];
+      const a=hash[0],e=hash[4];
+      const temp1=hash[7]
+        +(rightRotate(e,6)^rightRotate(e,11)^rightRotate(e,25))
+        +((e&hash[5])^((~e)&hash[6]))
+        +k[i]
+        +(w[i]=(i<16)?w[i]:(
+          w[i-16]
+          +(rightRotate(w15,7)^rightRotate(w15,18)^(w15>>>3))
+          +w[i-7]
+          +(rightRotate(w2,17)^rightRotate(w2,19)^(w2>>>10))
+        )|0);
+      const temp2=(rightRotate(a,2)^rightRotate(a,13)^rightRotate(a,22))
+        +((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+      hash=[(temp1+temp2)|0].concat(hash);
+      hash[4]=(hash[4]+temp1)|0;
+      hash.pop();
+    }
+    for(let i=0;i<8;i++) hash[i]=(hash[i]+oldHash[i])|0;
+  }
+  for(let i=0;i<8;i++){
+    for(let j=3;j+1;j--){
+      const b=(hash[i]>>(j*8))&255;
+      result+=(b<16?"0":"")+b.toString(16);
+    }
+  }
+  return result;
 }
 
 function gateSessionIsOpen(){
@@ -1530,6 +1523,8 @@ async function verifyClassGate(){
   const error=document.getElementById("classGateError");
   const card=document.querySelector(".class-gate-card");
   if(!input || !error) return;
+
+  error.textContent="";
 
   const now=Date.now();
   if(now < classGateLockedUntil){
@@ -1635,6 +1630,7 @@ async function initFirebaseSync(){
 
     firebaseAuth.onAuthStateChanged(user=>{
       isTeacher=!!user;
+      if(!user && customMusic && !customMusic.paused) customMusic.pause();
       refreshAdminVisibility();
       setSyncStatus(
         "cloud",
@@ -2029,11 +2025,28 @@ function applyWeatherMode(mode, announce=true){
   }
 }
 
-renderGarden();
-refreshAdminVisibility();
-loadMusicFromDB();
-initWeatherSystem();
-initDailyFairyMessage();
-initFirebaseSync();
-initClassGate();
-startSceneCycle();
+// =========================================================
+// V22 – KHỞI TẠO AN TOÀN
+// Cổng Mã lớp phải hoạt động độc lập với mọi module khác.
+// =========================================================
+function safeInit(label, fn){
+  try{
+    const result=fn();
+    if(result && typeof result.catch==="function"){
+      result.catch(err=>console.error(`[V22] ${label}:`,err));
+    }
+  }catch(err){
+    console.error(`[V22] ${label}:`,err);
+  }
+}
+
+// Khởi tạo Cổng lớp ĐẦU TIÊN.
+// Vì vậy lỗi nhạc, Firebase, thời tiết... không thể làm nút Vào khu vườn bị đơ.
+safeInit("Class Gate", initClassGate);
+
+safeInit("Garden render", renderGarden);
+safeInit("Admin visibility", refreshAdminVisibility);
+safeInit("Weather", initWeatherSystem);
+safeInit("Daily fairy", initDailyFairyMessage);
+safeInit("Firebase", initFirebaseSync);
+safeInit("Scene cycle", startSceneCycle);
